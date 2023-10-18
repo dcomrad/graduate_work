@@ -1,0 +1,33 @@
+@startuml
+actor User
+actor Manager
+
+cloud "Stripe" as stripe
+
+component "Сервис уведомлений" as notifications_service
+
+rectangle "Сервис биллинга" {
+  database "БД транзакций" as billing_db
+  component "ETL" as billing_notification_etl
+
+  package "Панель администратора" {
+    [Django] as admin_panel
+  }
+
+  package "API Оплат" {
+    [FastAPI] as billing_api
+  }
+
+  billing_api ..> stripe : отправка\n запросов\n об оплате
+  billing_api <.. stripe : получение\n информации\n об оплате
+  billing_api ...> billing_db : запись\n информации\n о транзакции
+  admin_panel ...> billing_db : контроль\n оплаты\n подписок
+  billing_notification_etl <.l. billing_db : получение информации\n о новых транзакциях
+}
+
+billing_notification_etl ..> notifications_service : запрос в сервис\n на отправку уведомления
+notifications_service .r.> User : получение\n уведомлений
+
+Manager ..> admin_panel
+User ..> billing_api : запрос об оплате
+@enduml

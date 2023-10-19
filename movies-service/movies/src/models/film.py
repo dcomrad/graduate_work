@@ -8,7 +8,7 @@ from src.models.person import Person
 
 
 class FilmBase(BaseModel):
-    uuid: UUID = Field(..., alias='id', title='ID фильма')
+    id: UUID = Field(..., title='ID фильма')
     title: str = Field(..., title='Название фильма')
     imdb_rating: float = Field(..., title='Рейтинг фильма')
 

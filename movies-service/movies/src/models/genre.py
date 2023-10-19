@@ -7,7 +7,7 @@ from src.models.mixins import JSONMixin
 
 class Genre(BaseModel):
     """Модель информации о жанре."""
-    uuid: UUID = Field(..., alias='id', title='ID жанра')
+    id: UUID = Field(..., title='ID жанра')
     name: str = Field(..., title='Название жанра')
     description: Optional[str] = Field(None, title='Описание жанра')
 

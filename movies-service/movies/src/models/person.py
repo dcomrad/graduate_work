@@ -16,7 +16,7 @@ class FilmRole(BaseModel):
 
 class Person(BaseModel, JSONMixin):
     """Модель информации о персоне."""
-    uuid: UUID = Field(..., alias='id', title='ID человека')
+    id: UUID = Field(..., title='ID человека')
     full_name: str = Field(..., title='Полное имя человека')
     films: Optional[list[FilmRole]] = Field(None,
                                             title='Список фильмов и ролей')

@@ -1,0 +1,145 @@
+version: "3.8"
+
+name: notifications-service
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: notifications-postgres
+    hostname: ${POSTGRES_HOST}
+    restart: on-failure
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    expose:
+      - ${POSTGRES_PORT}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data/
+    env_file:
+      - env/postgres
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: notifications-nginx
+    hostname: ${NGINX_HOST}
+    restart: on-failure
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    expose:
+      - ${SERVER_PORT}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - static_data:/data/static/
+      - media_data:/data/media/
+    env_file:
+      - env/general
+
+  admin:
+    build: ../admin-panel
+    container_name: notifications-admin
+    hostname: ${ADMIN_HOST}
+    restart: on-failure
+    depends_on:
+      - postgres
+    entrypoint: /app/docker-entrypoint.sh
+    ports:
+      - ${ADMIN_PORT}:${ADMIN_PORT}
+    expose:
+      - ${ADMIN_PORT}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - static_data:/app/static/
+      - media_data:/app/media/
+    env_file:
+      - env/general
+      - env/django
+      - env/postgres
+
+  rabbit:
+    image: rabbitmq:${RABBIT_VERSION}
+    container_name: notifications-rabbit
+    hostname: ${RABBIT_HOST}
+    restart: on-failure
+    ports:
+      - ${RABBIT_PORT}:${RABBIT_PORT}
+      - ${RABBIT_MANAGEMENT_PORT}:${RABBIT_MANAGEMENT_PORT}
+    expose:
+      - ${RABBIT_PORT}
+      - ${RABBIT_MANAGEMENT_PORT}
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+    env_file:
+      - env/general
+      - env/rabbit
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: notifications-redis
+    hostname: ${REDIS_HOST}
+    restart: on-failure
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - redis_data:/data
+
+  publisher:
+    build:
+      context: ../publisher
+      dockerfile: Dockerfile.dev    
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+        APP_PORT: ${PUBLISHER_PORT}
+    container_name: notifications-publisher
+    hostname: ${PUBLISHER_HOST}
+    restart: on-failure
+    depends_on:
+      - rabbit
+    ports:
+      - ${PUBLISHER_PORT}:${PUBLISHER_PORT}
+    expose:
+      - ${PUBLISHER_PORT}
+    env_file:
+      - env/publisher
+
+  celery:
+    build:
+      context: ../publisher
+      dockerfile: Dockerfile.celery
+    container_name: notifications-celery
+    hostname: ${CELERY_HOST}
+    restart: on-failure
+    depends_on:
+      - redis
+    ports:
+      - ${CELERY_PORT}:${CELERY_PORT}
+    expose:
+      - ${CELERY_PORT}
+    env_file:
+      - env/general
+      - env/publisher
+
+  worker:
+    build: ../worker
+    container_name: notifications-worker
+    hostname: ${WORKER_HOST}
+    restart: on-failure
+    depends_on:
+      - rabbit
+    env_file:
+      - env/general
+      - env/worker
+      - env/rabbit
+
+networks:
+  default:
+    name: notifications-network
+
+volumes:
+  postgresql_data:
+  static_data:
+  media_data:
+  rabbit_data:
+  redis_data:

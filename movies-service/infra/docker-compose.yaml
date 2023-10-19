@@ -1,0 +1,102 @@
+version: '3.8'
+
+name: movies-service
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: movies-postgres
+    hostname: ${POSTGRES_HOST}
+    restart: on-failure
+    expose:
+      - ${POSTGRES_PORT}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data/
+    env_file:
+      - env/postgres
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: movies-redis
+    hostname: ${REDIS_HOST}
+    restart: on-failure
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - redis_data:/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: movies-elastic
+    hostname: ${ELASTIC_HOST}
+    restart: on-failure
+    expose:
+      - ${ELASTIC_PORT}
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    env_file:
+      - env/elasticsearch
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: movies-nginx
+    restart: on-failure
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/site.conf.template:/etc/nginx/templates/site.conf.template:ro
+      - static_data:/data/static/
+      - media_data:/data/media/
+    env_file:
+      - env/general
+
+  django:
+    build: ../admin-panel
+    container_name: movies-admin
+    hostname: ${DJANGO_HOST}
+    restart: on-failure
+    entrypoint: /app/docker-entrypoint.sh
+    expose:
+      - ${DJANGO_PORT}
+    volumes:
+      - static_data:/app/static/
+      - media_data:/app/media/
+    env_file:
+      - env/general
+      - env/django
+      - env/postgres
+
+  etl:
+    build: ../etl
+    container_name: movies-etl
+    restart: on-failure
+    env_file:
+      - env/general
+      - env/etl
+      - env/postgres
+      - env/elasticsearch
+
+  movies:
+    build: ../movies
+    container_name: movies
+    hostname: ${MOVIES_HOST}
+    restart: on-failure
+    entrypoint: /app/docker-entrypoint.sh
+    expose:
+      - ${MOVIES_PORT}
+    env_file:
+      - env/general
+      - env/movies
+      - env/elasticsearch
+
+networks:
+  default:
+    name: movies-network
+
+volumes:
+  static_data:
+  media_data:
+  postgresql_data:
+  redis_data:
+  elasticsearch_data:

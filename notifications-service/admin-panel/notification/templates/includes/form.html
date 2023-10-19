@@ -1,0 +1,58 @@
+<form method="post">
+    {% csrf_token %}
+
+    </br>
+    <div class="text-center">
+        Вы собираетесь отправить уведомление {{ users_count }} пользователям
+    </div>
+
+    </br>
+    <div class="text-center">
+      {{form.as_p}}
+    </div>
+
+    </br>
+    <div class="text-center">
+        <input type="button" class="btn-lg" value="Добавить переменную" onclick="add_var()"/>
+        <input type="button" class="btn-lg" value="Удалить переменную" onclick="remove_var()"/>
+    </div>
+
+    </br>
+    <div class="text-center" id="vars">
+
+    </div>
+
+    </br>
+    <div class="text-center">
+        <button type="submit" class="btn-lg btn-primary"> {{ btn_text }} </button>
+    </div>
+</form>
+
+    <script>
+        function add_element(_class, _placeholder) {
+            var var_name = document.createElement("INPUT");
+            var_name.setAttribute("type", "text");
+            var_name.setAttribute("placeholder", _placeholder);
+            var_name.setAttribute("class", _class);
+            var_name.setAttribute("name", _class);
+            document.getElementById("vars").appendChild(var_name);
+        }
+
+        function remove_element(_class) {
+            var childs = document.getElementById("vars");
+            if (childs.length > 0) {
+                document.body.removeChild(childs[childs.length - 1]);
+            }
+        }
+
+        function add_var() {
+             add_element("varNameInput", "Имя переменной");
+             add_element("varValueInput", "Значение переменной");
+             document.getElementById("vars").appendChild(document.createElement("br"));;
+        }
+
+        function remove_var() {
+            remove_element("varNameInput");
+            remove_element("varValueInput");
+        }
+    </script>

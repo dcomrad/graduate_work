@@ -1,0 +1,35 @@
+ARG PYTHON_VERSION=latest
+ARG APP_PORT=8000
+FROM python:${PYTHON_VERSION}
+
+ENV HOME=/
+ENV APP_HOME=/app
+ENV GROUP=app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN mkdir ${APP_HOME}
+WORKDIR ${APP_HOME}
+
+COPY publisher publisher
+COPY pyproject.toml pyproject.toml
+COPY docker-entrypoint.sh docker-entrypoint.sh
+COPY main.py main.py
+COPY README.md README.md
+
+RUN apt-get update \
+    && apt-get install -y gettext \
+    && apt install -y ncat \
+    && python -m pip install --upgrade pip \
+    && pip install poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-dev
+
+RUN groupadd -r ${GROUP} \
+    && useradd -d ${APP_HOME} -r -g ${GROUP} ${GROUP} \
+    && chown ${GROUP}:${GROUP} -R ${APP_HOME}
+USER ${GROUP}
+
+EXPOSE ${APP_PORT}
+
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "Admin panel for Notifications service"
+description = "Административная панель для сервиса нотификации"
+version = "0.1.0"
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "3.2"
+python-dotenv = "^1.0.0"
+psycopg2-binary = "^2.9.9"
+uwsgi = "2.0.21"
+pydantic-settings = "^2.0.3"
+requests = "^2.31.0"
+orjson = "^3.9.7"
+jinja2 = "^3.1.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

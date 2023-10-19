@@ -1,0 +1,6 @@
+RABBIT_QUEUE_NAME = "hello"
+SMTP_HOST = 'smtp.yandex.ru'
+SMTP_PORT = 465
+SMTP_LOGIN = "login@yandex.ru"
+SMTP_FROM = "login@yandex.ru"
+SMTP_PASSWORD = "password"

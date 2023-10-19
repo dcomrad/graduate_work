@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "UGC service"
+description = ""
+version = "0.1.0"
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "0.95.2"
+pydantic = "^1.10.7"
+gunicorn = "^20.1.0"
+uvicorn = "^0.22.0"
+async-fastapi-jwt-auth = {extras = ["asymmetric"], version = "^0.5.1"}
+orjson = "^3.9.1"
+redis = "^4.6.0"
+aiokafka = "^0.8.1"
+motor = "^3.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

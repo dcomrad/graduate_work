@@ -1,0 +1,60 @@
+version: '3.8'
+
+name: auth-service
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: auth-postgres
+    hostname: ${POSTGRES_HOST}
+    restart: on-failure
+    expose:
+      - ${POSTGRES_PORT}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    env_file:
+      - env/postgres
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: auth-redis
+    hostname: ${REDIS_HOST}
+    restart: on-failure
+    expose:
+      - ${REDIS_PORT}
+    volumes:
+      - redis_data:/data
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: auth-nginx
+    restart: on-failure
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/site.conf.template:/etc/nginx/templates/site.conf.template:ro
+    env_file:
+      - env/general
+
+  auth:
+    build: ../auth
+    container_name: auth
+    hostname: ${AUTH_HOST}
+    restart: on-failure
+    entrypoint: /app/docker-entrypoint.sh
+    expose:
+      - ${AUTH_PORT}
+    env_file:
+      - env/general
+      - env/auth
+      - env/oauth
+      - env/postgres
+
+networks:
+  default:
+    name: auth-network
+
+volumes:
+  postgresql_data:
+  redis_data:

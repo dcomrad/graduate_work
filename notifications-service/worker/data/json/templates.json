@@ -1,0 +1,22 @@
+{  
+"9ab9df5e-c1a8-49fe-aca3-2462fdfc58e8" : {
+        "template_id": "9ab9df5e-c1a8-49fe-aca3-2462fdfc58e8",
+        "subject": "Hi dear customer",
+        "text": "Уважаемый {{ user.full_name }}, вышла новая серия {{ movie.title }}"
+    },
+"2" : {
+        "template_id": 2,
+        "subject": "Welcome to our ship",
+        "text": "Good morning {{ name}}"
+    },
+"3" : {
+        "template_id": 3,
+        "subject": "Welcome to our ship",
+        "text": "Good morning {{ name}}"
+    },
+"4" : {
+            "template_id": 4,
+            "subject": "Welcome to our team",
+            "text": "Good morning {{ name}}"
+    }
+}    

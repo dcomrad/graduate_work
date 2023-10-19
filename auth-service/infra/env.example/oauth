@@ -1,0 +1,5 @@
+YANDEX_CLIENT_ID=93a8c80cf5f24288a465f681f2aa9bd4
+YANDEX_CLIENT_SECRET=ffc4f3974ff948538f9609570609a94a
+YANDEX_AUTH_URL=https://oauth.yandex.ru/authorize?response_type=code&force_confirm=true
+YANDEX_TOKEN_URL=https://oauth.yandex.ru/token
+YANDEX_CLIENT_INFO_URL=https://login.yandex.ru/info

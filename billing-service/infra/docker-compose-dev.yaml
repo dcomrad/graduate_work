@@ -1,0 +1,40 @@
+version: "3.8"
+
+name: billing-service
+
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: billing-postgres
+    hostname: ${POSTGRES_HOST}
+    restart: on-failure
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    expose:
+      - ${POSTGRES_PORT}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data/
+    env_file:
+      - env/postgres
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: billing-nginx
+    hostname: ${NGINX_HOST}
+    restart: on-failure
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    expose:
+      - ${SERVER_PORT}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    env_file:
+      - env/general
+
+networks:
+  default:
+    name: billing-network
+
+volumes:
+  postgresql_data:

@@ -1,0 +1,22 @@
+{
+    "1": {
+        "name": "John Doe",
+        "full_name": "John Doe",
+        "email": "nov-i-k@ynadex.ru"
+    },
+    "2": {
+        "name": "Jane Smith",
+        "full_name": "Jane Smith",
+        "email": "jane@example.com"
+    },
+    "3": {
+        "name": "Alice Cooper",
+        "full_name": "Alice Cooper",
+        "email": "alice@example.com"
+    },
+    "4": {
+        "name": "Bob Marley",
+        "full_name": "Bob Marley",
+        "email": "bobm@example.com"
+    }
+}

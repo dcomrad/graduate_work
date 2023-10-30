@@ -6,11 +6,12 @@ services:
   postgres:
     image: postgres:13
     container_name: billing-postgres
+    hostname: ${POSTGRES_HOST}
     restart: on-failure
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     expose:
-      - 5432
+      - ${POSTGRES_PORT}
     volumes:
       - postgresql_data:/var/lib/postgresql/data/
     env_file:

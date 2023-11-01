@@ -1,7 +1,7 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from backend.config.config import config_postgres
+from config.config import config_postgres
 
 Base = declarative_base()
 #Base.metadata.schema = config_postgres.search_path

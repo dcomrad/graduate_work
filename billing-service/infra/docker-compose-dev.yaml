@@ -3,19 +3,30 @@ version: "3.8"
 name: billing-service
 
 services:
+  app:
+    build: ../backend/.
+    image: billing-backend
+    container_name: billing-backend
+    ports:
+      - 9900:9900
+    env_file:
+      - env.example/general
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:13
     container_name: billing-postgres
-    hostname: ${POSTGRES_HOST}
+    #hostname: ${POSTGRES_HOST}
     restart: on-failure
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - 5432:5432
     expose:
-      - ${POSTGRES_PORT}
+      - 5432
     volumes:
       - postgresql_data:/var/lib/postgresql/data/
     env_file:
-      - ../.env
+      - env.example/general
 
   # nginx:
   #   image: nginx:${NGINX_VERSION}

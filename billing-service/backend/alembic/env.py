@@ -5,8 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from backend.config.config import config_postgres
-from backend.models.models import Base
+from config.config import config_postgres
+from models.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,7 +18,6 @@ config.set_section_option(section, "PASSWORD", config_postgres.password)
 config.set_section_option(section, "HOST", config_postgres.host)
 config.set_section_option(section, "PORT", str(config_postgres.port))
 config.set_section_option(section, "DB_NAME", config_postgres.db)
-
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

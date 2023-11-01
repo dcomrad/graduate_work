@@ -1,8 +1,8 @@
 """create tables
 
-Revision ID: fe6379f9e30e
+Revision ID: 977cc8d9864e
 Revises:
-Create Date: 2023-10-27 19:26:51.718785
+Create Date: 2023-11-01 19:51:35.038702
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fe6379f9e30e'
+revision: str = '977cc8d9864e'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -33,8 +33,10 @@ def upgrade() -> None:
         sa.Column('name', sa.String(length=120), nullable=False),
         sa.Column('price', sa.SmallInteger(), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=False),
-        sa.Column('period_days', sa.SmallInteger(), nullable=False),
+        sa.Column('recurring_interval', sa.String(length=10), nullable=False),
+        sa.Column('recurring_interval_count', sa.SmallInteger(), nullable=False),
         sa.Column('permission_rang', sa.SmallInteger(), nullable=True),
+        sa.Column('currency', sa.String(length=10), nullable=False),
         sa.Column('id', sa.UUID(), nullable=False),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('id')
@@ -46,6 +48,7 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=True),
         sa.Column('expired_at', sa.Date(), nullable=True),
         sa.Column('auto_reneval', sa.Boolean(), nullable=False),
+        sa.Column('is_active', sa.Boolean(), nullable=False),
         sa.ForeignKeyConstraint(['subscription_id'], ['subscription.id'], ),
         sa.PrimaryKeyConstraint('user_id'),
         sa.UniqueConstraint('user_id')
@@ -56,13 +59,12 @@ def upgrade() -> None:
         sa.Column('idempotency_key', sa.UUID(), nullable=False),
         sa.Column('user_id', sa.UUID(), nullable=True),
         sa.Column('amount', sa.SmallInteger(), nullable=False),
-        sa.Column('currency', sa.Enum('RUB', 'USD', name='currency'), nullable=True),
-        sa.Column('product_id', sa.UUID(), nullable=True),
+        sa.Column('subscription_id', sa.UUID(), nullable=True),
         sa.Column('status', sa.String(length=40), nullable=False),
         sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=True),
         sa.Column('id', sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(['product_id'], ['subscription.id'], ),
         sa.ForeignKeyConstraint(['provider_id'], ['provider.id'], ),
+        sa.ForeignKeyConstraint(['subscription_id'], ['subscription.id'], ),
         sa.ForeignKeyConstraint(['user_id'], ['user_subscription.user_id'], ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('id')

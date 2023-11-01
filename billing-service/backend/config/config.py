@@ -3,7 +3,7 @@ from pydantic import Field
 
 
 class PostgresSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='../infra/env.example/general', env_file_encoding='utf-8')
 
     host: str = Field(alias='POSTGRES_HOST')
     port: int = Field(alias='POSTGRES_PORT')

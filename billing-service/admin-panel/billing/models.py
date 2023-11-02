@@ -28,7 +28,7 @@ class Subscription(UUIDMixin):
     is_active = models.BooleanField()
     recurring_interval = models.CharField(max_length=10)
     recurring_interval_count = models.SmallIntegerField()
-    permission_rang = models.SmallIntegerField(blank=True, null=True)
+    permission_rank = models.SmallIntegerField(blank=True, null=True)
     currency = models.CharField(max_length=10)
 
     class Meta:
@@ -44,7 +44,7 @@ class UserSubscription(models.Model):
     subscription = models.ForeignKey(Subscription, models.DO_NOTHING)
     created_at = models.DateTimeField(blank=True, null=True)
     expired_at = models.DateField(blank=True, null=True)
-    auto_reneval = models.BooleanField()
+    auto_renewal = models.BooleanField()
     is_active = models.BooleanField()
 
     class Meta:

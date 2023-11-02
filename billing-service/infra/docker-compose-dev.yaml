@@ -3,45 +3,48 @@ version: "3.8"
 name: billing-service
 
 services:
-  app:
-    build: ../backend/.
-    image: billing-backend
-    container_name: billing-backend
-    ports:
-      - 9900:9900
-    env_file:
-      - env.example/general
-    depends_on:
-      - postgres
+#  backend:
+#    build: ../backend
+#    container_name: billing-backend
+#    hostname: ${BACKEND_HOST}
+#    restart: on-failure
+#    ports:
+#      - ${BACKEND_PORT}:${BACKEND_PORT}
+#    env_file:
+#      - env/general
+#      - env/backend
+#      - env/postgres
+#    depends_on:
+#      - postgres
 
   postgres:
-    image: postgres:13
+    image: postgres:${POSTGRES_VERSION}
     container_name: billing-postgres
-    #hostname: ${POSTGRES_HOST}
+    hostname: ${POSTGRES_HOST}
     restart: on-failure
-    ports:
-      - 5432:5432
     expose:
-      - 5432
+      - ${POSTGRES_PORT}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
       - postgresql_data:/var/lib/postgresql/data/
     env_file:
-      - env.example/general
+      - env/postgres
 
-  # nginx:
-  #   image: nginx:${NGINX_VERSION}
-  #   container_name: billing-nginx
-  #   hostname: ${NGINX_HOST}
-  #   restart: on-failure
-  #   ports:
-  #     - ${SERVER_PORT}:${SERVER_PORT}
-  #   expose:
-  #     - ${SERVER_PORT}
-  #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #     - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-  #   env_file:
-  #     - env/general
+#  nginx:
+#   image: nginx:${NGINX_VERSION}
+#   container_name: billing-nginx
+#   hostname: ${NGINX_HOST}
+#   restart: on-failure
+#   ports:
+#     - ${SERVER_PORT}:${SERVER_PORT}
+#   expose:
+#     - ${SERVER_PORT}
+#   volumes:
+#     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+#     - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+#   env_file:
+#     - env/general
 
 networks:
   default:

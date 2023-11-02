@@ -42,6 +42,8 @@ services:
     entrypoint: /app/docker-entrypoint.sh
     expose:
       - ${ADMIN_PORT}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - static_data:/app/static/
       - media_data:/app/media/

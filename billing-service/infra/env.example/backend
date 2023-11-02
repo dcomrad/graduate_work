@@ -1,0 +1,2 @@
+SECRET_KEY=<Stripe secret key>
+PUBLISHABLE_KEY=<Stripe publishable key>

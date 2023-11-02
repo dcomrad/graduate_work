@@ -1,8 +1,7 @@
-from sqlalchemy import (Column, UUID, SmallInteger,
-                        ForeignKey, DateTime, text,
-                        Boolean, Date, String)
-from models.base_models import IDMixin
-from db.postgres import Base
+from src.db.postgres import Base
+from src.models.base_models import IDMixin
+from sqlalchemy import (UUID, Boolean, Column, Date, DateTime, ForeignKey,
+                        SmallInteger, String, text)
 
 
 class UserSubscription(Base):

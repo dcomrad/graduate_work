@@ -24,6 +24,4 @@ RUN groupadd -r $USER && \
 
 USER $USER
 
-EXPOSE 9900
-
 ENTRYPOINT ["./docker-entrypoint.sh"]

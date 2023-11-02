@@ -14,7 +14,8 @@ ENV USER admin
 
 WORKDIR $WORKDIR
 
-COPY . .
+COPY poetry.lock poetry.lock
+COPY pyproject.toml pyproject.toml
 
 RUN apt-get update && \
     apt-get install -y netcat-traditional && \
@@ -23,14 +24,14 @@ RUN apt-get update && \
     poetry config virtualenvs.create false && \
     poetry install --without dev
 
+COPY . .
+
 RUN mkdir -p $WORKDIR/static/ && \
     mkdir -p $WORKDIR/media/ && \
     groupadd -r $USER && \
     useradd -d $WORKDIR -r -g $USER $USER && \
     chown $USER:$USER -R $WORKDIR && \
     chmod +x docker-entrypoint.sh
-
-EXPOSE 8000
 
 USER $USER
 

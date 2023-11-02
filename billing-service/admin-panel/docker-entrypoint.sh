@@ -11,4 +11,4 @@ echo "Postgres started"
 python manage.py migrate
 python manage.py collectstatic --no-input
 
-uwsgi --strict --ini uwsgi.ini
+uwsgi --strict --ini uwsgi.ini --socket :$ADMIN_PORT

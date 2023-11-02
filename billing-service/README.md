@@ -2,11 +2,14 @@
 
 # Приложения
 * admin-panel - панель администратора
+* backend - API сервиса (FastAPI)
 
-# Запуск из папки infra
-* скопировать env.example => env
-* запустить docker compose
-
+# Запуск
+* скопировать infra/env.example => infra/env
+* заполнить все переменные окружения
+* список команд:
 ```
-sudo docker compose --env-file=env/general up --build -d
+make up             - запуск сервиса
+make down           - остановка сервиса
+make down-volumes   - остановка сервиса с удалением всех данных
 ```

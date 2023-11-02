@@ -1,20 +1,21 @@
 [tool.poetry]
-name = "Admin-panel"
+name = "Linters"
 description = ""
 version = "0.1.0"
 authors = []
 
 [tool.poetry.dependencies]
 python = "^3.10"
-django = "^4.2.6"
-pydantic-settings = "^2.0.3"
-django-split-settings = "^1.2.0"
-psycopg = {extras = ["binary"], version = "^3.1.12"}
-uwsgi = {version = "^2.0.22", platform = "linux"}
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"
-blue = "^0.9.1"
+flake8 = "^6.1.0"
+flake8-blind-except = "^0.2.1"
+flake8-broken-line = "^1.0.0"
+flake8-return = "^1.2.0"
+flake8-variables-names = "^0.0.6"
+pep8-naming = "^0.13.3"
+mypy = "^1.6.1"
 
 [build-system]
 requires = ["poetry-core"]

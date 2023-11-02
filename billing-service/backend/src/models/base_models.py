@@ -1,5 +1,6 @@
-from sqlalchemy import Column, UUID
 import uuid
+
+from sqlalchemy import UUID, Column
 
 
 class IDMixin:

@@ -5,7 +5,8 @@ ENV USER billing
 
 WORKDIR $WORKDIR
 
-COPY . .
+COPY poetry.lock poetry.lock
+COPY pyproject.toml pyproject.toml
 
 RUN apt-get update && \
     pip install --upgrade pip &&\
@@ -14,13 +15,13 @@ RUN apt-get update && \
     poetry config virtualenvs.create false && \
     poetry install --without dev
 
+COPY . .
+
 RUN groupadd -r $USER && \
     useradd -d $WORKDIR -r -g $USER $USER && \
     chown $USER:$USER -R $WORKDIR && \
     chmod +x docker-entrypoint.sh
 
 USER $USER
-
-EXPOSE 9900
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

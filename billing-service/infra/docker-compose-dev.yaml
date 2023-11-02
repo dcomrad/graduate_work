@@ -3,20 +3,6 @@ version: "3.8"
 name: billing-service
 
 services:
-#  backend:
-#    build: ../backend
-#    container_name: billing-backend
-#    hostname: ${BACKEND_HOST}
-#    restart: on-failure
-#    ports:
-#      - ${BACKEND_PORT}:${BACKEND_PORT}
-#    env_file:
-#      - env/general
-#      - env/backend
-#      - env/postgres
-#    depends_on:
-#      - postgres
-
   postgres:
     image: postgres:${POSTGRES_VERSION}
     container_name: billing-postgres
@@ -46,9 +32,45 @@ services:
 #   env_file:
 #     - env/general
 
+  backend:
+    build: ../backend
+    container_name: billing-backend
+    hostname: ${BACKEND_HOST}
+    restart: on-failure
+    expose:
+      - ${BACKEND_PORT}
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    env_file:
+      - env/general
+      - env/backend
+      - env/postgres
+    depends_on:
+      - postgres
+
+  admin-panel:
+    build: ../admin-panel
+    container_name: billing-admin
+    hostname: ${ADMIN_HOST}
+    restart: unless-stopped
+    volumes:
+      - static_volume:/app/static
+    expose:
+      - ${ADMIN_PORT}
+    ports:
+      - ${ADMIN_PORT}:${ADMIN_PORT}
+    env_file:
+      - env/general
+      - env/admin
+      - env/postgres
+    depends_on:
+      - postgres
+      - backend
+
 networks:
   default:
     name: billing-network
 
 volumes:
   postgresql_data:
+  static_volume:

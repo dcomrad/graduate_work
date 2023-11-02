@@ -8,5 +8,7 @@ while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
 done
 echo "Postgres started"
 
-alembic upgrade head
-gunicorn src.main:app --workers 4 --worker-class uvicorn.workers.UvicornH11Worker --bind 0.0.0.0:$BACKEND_PORT
+python manage.py migrate
+python manage.py collectstatic --no-input
+
+uwsgi --strict --ini uwsgi.ini --socket :$ADMIN_PORT

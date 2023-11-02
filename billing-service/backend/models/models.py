@@ -11,7 +11,7 @@ class UserSubscription(Base):
     subscription_id = Column(UUID, ForeignKey("subscription.id"), nullable=False)
     created_at = Column(DateTime, server_default=text("TIMEZONE('utc', now())"))
     expired_at = Column(Date, nullable=True)
-    auto_reneval = Column(Boolean, nullable=False, default=False)
+    auto_renewal = Column(Boolean, nullable=False, default=False)
     is_active = Column(Boolean, nullable=False, default=False)
 
 
@@ -23,7 +23,7 @@ class Subscription(Base, IDMixin):
     is_active = Column(Boolean, nullable=False)
     recurring_interval = Column(String(10), nullable=False)
     recurring_interval_count = Column(SmallInteger, nullable=False)
-    permission_rang = Column(SmallInteger, default=0)
+    permission_rank = Column(SmallInteger, default=0)
     currency = Column(String(10), nullable=False, default="RUB")
 
 

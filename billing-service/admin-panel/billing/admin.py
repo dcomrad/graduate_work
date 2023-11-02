@@ -32,7 +32,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'is_active',
         'recurring_interval',
         'recurring_interval_count',
-        'permission_rang',
+        'permission_rank',
     )
 
 
@@ -42,7 +42,7 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
         'user_id',
         'subscription',
         'expired_at',
-        'auto_reneval',
+        'auto_renewal',
         'is_active',
     )
     list_filter = ('user_id',)

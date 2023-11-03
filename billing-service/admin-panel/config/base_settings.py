@@ -27,5 +27,11 @@ class DjangoSecuritySettings(BaseSettings):
     debug: bool = Field(validation_alias='DEBUG', default=False)
 
 
+class AuthSettings(BaseSettings):
+    host: str = Field('127.0.0.1', env='AUTH_HOST')
+    port: str = Field('8080', env='AUTH_PORT')
+
+
 postgres_settings = PostgresSettings()
 django_security_settings = DjangoSecuritySettings()
+auth_settings = AuthSettings()

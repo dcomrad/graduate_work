@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from utils.api import ApiHelper
+
 from .models import Subscription, Transaction, UserSubscription
 
 
@@ -7,6 +9,7 @@ from .models import Subscription, Transaction, UserSubscription
 class TransactionAdmin(admin.ModelAdmin):
     list_display = (
         'get_user_id',
+        'get_user_fullname',
         'provider',
         'subscription',
         'amount',
@@ -21,6 +24,13 @@ class TransactionAdmin(admin.ModelAdmin):
     @admin.display(description='User ID')
     def get_user_id(self, obj):
         return obj.user_id
+
+    @admin.display(description='Full name')
+    def get_user_fullname(self, obj):
+        api_helper = ApiHelper()
+        user_id = obj.user_id
+        response = api_helper.get_user_by_id(user_id)
+        return response.body.get('full_name', '')
 
 
 @admin.register(Subscription)

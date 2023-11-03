@@ -2,6 +2,12 @@ import uuid
 
 from django.db import models
 
+from .enums import (
+    CurrencyChoices,
+    RecurringIntervalChoices,
+    TransactionStatusChoices,
+)
+
 
 class UUIDMixin(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -26,10 +32,12 @@ class Subscription(UUIDMixin):
     name = models.CharField(max_length=120)
     price = models.SmallIntegerField()
     is_active = models.BooleanField()
-    recurring_interval = models.CharField(max_length=10)
+    recurring_interval = models.CharField(
+        max_length=10, choices=RecurringIntervalChoices.choices
+    )
     recurring_interval_count = models.SmallIntegerField()
     permission_rank = models.SmallIntegerField(blank=True, null=True)
-    currency = models.CharField(max_length=10)
+    currency = models.CharField(max_length=10, choices=CurrencyChoices.choices)
 
     class Meta:
         managed = False
@@ -66,7 +74,9 @@ class Transaction(UUIDMixin):
     subscription = models.ForeignKey(
         Subscription, models.DO_NOTHING, blank=True, null=True
     )
-    status = models.CharField(max_length=40)
+    status = models.CharField(
+        max_length=40, choices=TransactionStatusChoices.choices
+    )
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:

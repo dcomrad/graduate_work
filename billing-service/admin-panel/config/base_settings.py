@@ -28,10 +28,16 @@ class DjangoSecuritySettings(BaseSettings):
 
 
 class AuthSettings(BaseSettings):
-    host: str = Field('127.0.0.1', env='AUTH_HOST')
-    port: str = Field('8080', env='AUTH_PORT')
+    host: str = Field(validation_alias='AUTH_HOST', default='51.250.6.208')
+    port: int = Field(validation_alias='AUTH_PORT', default=5002)
+    token: str = Field(validation_alias='AUTH_TOKEN', default='default-token')
+
+
+class LoggerSettings(BaseSettings):
+    loglevel: str = Field(validation_alias='LOGLEVEL', default='INFO')
 
 
 postgres_settings = PostgresSettings()
 django_security_settings = DjangoSecuritySettings()
 auth_settings = AuthSettings()
+logger_settings = LoggerSettings()

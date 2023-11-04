@@ -1,14 +1,16 @@
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, Path, Query
-from src.jwt import AuthJWT, login_required
-from src.db.postgres import get_async_session, AsyncSession
-from src.db.crud import payment_method_crud, user_subscription_crud, transaction_crud
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, Path, Query
+from pydantic import HttpUrl
+from src.api.v1 import openapi
 from src.core.exceptions import NotFoundException
 from src.core.logger import logger_factory
-from src.api.v1 import openapi
-from pydantic import HttpUrl
-from src.schemas import UserSubscription, PaymentMethod, HTMLForm, Transaction
+from src.db.crud import (payment_method_crud, transaction_crud,
+                         user_subscription_crud)
+from src.db.postgres import AsyncSession, get_async_session
+from src.jwt import AuthJWT, login_required
+from src.schemas import HTMLForm, PaymentMethod, Transaction, UserSubscription
 
 logger = logger_factory(__name__)
 
@@ -31,7 +33,8 @@ async def get_all_payment_methods(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос всех способов оплаты пользователя {user_id}')
 
@@ -65,14 +68,14 @@ async def add_payment_method(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug('Запрос на добавление нового способа оплаты '
                  f'пользователю {user_id} ("{button_text}", "{redirect_url}")')
 
     # TODO: направить запрос в платёжный провайдер на добавление способа оплаты
-    html = '<from></form>'
-    return html
+    return '<from></form>'
 
 
 @payment_methods_router.post(
@@ -86,7 +89,8 @@ async def set_default_payment_method(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос на установку способа оплаты {payment_method_id} '
                  f'по-умолчанию для пользователя {user_id}')
@@ -128,9 +132,11 @@ async def remove_payment_method(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
-    logger.debug(f'Запрос на удаление способа оплаты {payment_method_id} у пользователя {user_id}')
+    logger.debug(f'Запрос на удаление способа оплаты {payment_method_id} '
+                 f'у пользователя {user_id}')
 
     payment_method = await payment_method_crud.get(
         session, {'user_id': user_id, 'id': payment_method_id}
@@ -155,7 +161,8 @@ async def get_subscription(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос текущей подписки пользователя {user_id}')
 
@@ -185,7 +192,8 @@ async def subscribe(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос на добавление подписки {subscription_id} '
                  f'пользователем {user_id} '
@@ -203,7 +211,8 @@ async def unsubscribe(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос на отмену подписки {subscription_id} '
                  f'пользователем {user_id}')
@@ -224,7 +233,8 @@ async def get_transactions(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    user_id = await authorize.get_jwt_subject()  # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
+    user_id = await authorize.get_jwt_subject()
     user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос всех транзакций пользователя {user_id}')
 

@@ -51,4 +51,3 @@ get_transactions = BaseOpenapi(
     response_description=('Список всех транзакций пользователя, '
                           'отсортированных по убыванию даты создания')
 )
-

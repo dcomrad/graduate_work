@@ -1,3 +1,4 @@
+# flake8: noqa: E501, VNE003
 import uuid
 
 from sqlalchemy import UUID, Column

@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from src.jwt import AuthJWT, AuthJWTException, authjwt_exception_handler
 from src.api.v1.routers import v1_router
 from src.config.config import settings
+from src.jwt import AuthJWT, AuthJWTException, authjwt_exception_handler
 
 app = FastAPI(
     title=settings.app.name,

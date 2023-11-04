@@ -1,10 +1,11 @@
-from uuid import UUID
-from pydantic import BaseModel
 from datetime import date
+from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class Subscription(BaseModel):
-    id: UUID
+    id: UUID  # noqa:VNE003
     name: str
     description: str
     is_active: bool

@@ -2,6 +2,7 @@ import logging
 from functools import cache
 from logging.handlers import RotatingFileHandler
 from sys import stdout
+
 from src.config.config import settings
 
 

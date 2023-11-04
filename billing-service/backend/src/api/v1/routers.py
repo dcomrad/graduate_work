@@ -1,6 +1,9 @@
 from fastapi import APIRouter
-from src.api.v1.endpoints import subscription_router, webhook_router, customer_payment_methods_router, customer_transactions_router, customer_subscriptions_router, backoffice_router
-
+from src.api.v1.endpoints import (backoffice_router,
+                                  customer_payment_methods_router,
+                                  customer_subscriptions_router,
+                                  customer_transactions_router,
+                                  subscription_router, webhook_router)
 
 v1_router = APIRouter(prefix='/api/v1')
 

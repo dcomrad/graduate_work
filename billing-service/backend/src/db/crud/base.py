@@ -1,8 +1,8 @@
+import logging
 from typing import Any
 
 from sqlalchemy import and_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
 
 ModelType = Any
 

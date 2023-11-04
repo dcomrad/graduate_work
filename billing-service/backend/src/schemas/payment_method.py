@@ -1,4 +1,6 @@
+# flake8: noqa: VNE003
 import uuid
+
 from pydantic import BaseModel
 
 HTMLForm = str

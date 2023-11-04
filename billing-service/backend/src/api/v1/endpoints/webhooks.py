@@ -1,7 +1,8 @@
 from http import HTTPStatus
+
 from fastapi import APIRouter, Depends, Response
-from src.db.postgres import get_async_session, AsyncSession
 from src.api.v1 import openapi
+from src.db.postgres import AsyncSession, get_async_session
 
 router = APIRouter(prefix='/webhooks')
 

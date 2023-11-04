@@ -1,12 +1,13 @@
 from http import HTTPStatus
-from fastapi import APIRouter, Depends, Path
-from src.jwt import AuthJWT, login_required
-from src.db.postgres import get_async_session, AsyncSession
-from src.db.crud import transaction_crud, user_subscription_crud
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, Path
+from src.api.v1 import openapi
 from src.core.exceptions import NotFoundException
 from src.core.logger import logger_factory
-from src.api.v1 import openapi
+from src.db.crud import transaction_crud, user_subscription_crud
+from src.db.postgres import AsyncSession, get_async_session
+from src.jwt import AuthJWT, login_required
 
 logger = logger_factory(__name__)
 
@@ -24,7 +25,8 @@ async def refund(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    logger.debug(f'Запрос на возмещение средств по транзакции {transaction_id}')
+    logger.debug('Запрос на возмещение средств по транзакции '
+                 f'{transaction_id}')
 
     transaction = await transaction_crud.get(session, {'id': transaction_id})
     if transaction is None:
@@ -40,7 +42,7 @@ async def refund(
 )
 @login_required('backoffice_manager')
 async def cancel_subscription(
-        user_subscription_id: UUID = Path(..., description='ID способа оплаты'),
+        user_subscription_id: UUID = Path(..., description='ID способа оплаты'),  # noqa:E501
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):

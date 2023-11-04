@@ -1,6 +1,6 @@
-from src.config.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from src.config.config import settings
 
 Base = declarative_base()
 Base.metadata.schema = settings.postgres.search_path

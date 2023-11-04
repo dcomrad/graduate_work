@@ -1,7 +1,9 @@
-from pydantic import Field, Extra
-from pydantic_settings import BaseSettings
+# flake8: noqa: E501
 import os
 import pathlib
+
+from pydantic import Extra, Field
+from pydantic_settings import BaseSettings
 
 IN_DOCKER: bool = os.getenv('I_AM_IN_A_DOCKER_CONTAINER', False) == 'YES'
 
@@ -30,11 +32,11 @@ class AppSettings(EnvBase):
 
     @property
     def auth_api_url(self):
-        return f'http://{self.auth_api_host}:{self.auth_api_port}/api/v1/users/'  # noqa:E501
+        return f'http://{self.auth_api_host}:{self.auth_api_port}/api/v1/users/'
 
     @property
     def notifications_api_url(self):
-        return f'http://{self.publisher_host}:{self.publisher_port}/api/v1/send/important'  # noqa:E501
+        return f'http://{self.publisher_host}:{self.publisher_port}/api/v1/send/important'
 
 
 class JWTSettings(EnvBase):

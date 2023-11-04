@@ -36,9 +36,10 @@ def _check_permission(
         user_permissions: str | list[str],
         required_permission: str
 ) -> None:
-    """Проверяет наличие требуемого разрешения, среди списка пользовательских."""
+    """Проверяет наличие требуемого разрешения, среди списка
+    пользовательских."""
     allowed_permissions = {SUPERUSER_PERMISSION, required_permission}
-    user_permissions = [user_permissions] if isinstance(user_permissions, str) else user_permissions
+    user_permissions = [user_permissions] if isinstance(user_permissions, str) else user_permissions  # noqa:E501
 
     if not allowed_permissions & set(user_permissions):
         raise HTTPException(

@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, Path
-from src.db.postgres import get_async_session, AsyncSession
-from src.schemas import Subscription
-from src.db.crud import subscription_crud
 from uuid import UUID
-from src.core.exceptions import NotFoundException
+
+from fastapi import APIRouter, Depends, Path
 from src.api.v1 import openapi
+from src.core.exceptions import NotFoundException
 from src.core.logger import logger_factory
+from src.db.crud import subscription_crud
+from src.db.postgres import AsyncSession, get_async_session
+from src.schemas import Subscription
 
 logger = logger_factory(__name__)
 router = APIRouter(prefix='/subscriptions')
@@ -31,7 +32,9 @@ async def get(
         subscription_id: UUID = Path(..., description='ID подписки'),
         session: AsyncSession = Depends(get_async_session),
 ):
-    subscription = await subscription_crud.get(session, {'id': subscription_id})
+    subscription = await subscription_crud.get(
+        session, {'id': subscription_id}
+    )
     if subscription is None:
         msg = f'Подписка {subscription_id} не найдена'
         logger.error(msg)

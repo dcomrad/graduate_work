@@ -1,12 +1,13 @@
-from uuid import UUID
-from pydantic import BaseModel, Extra
 from datetime import datetime
-from src.schemas.subscription import Subscription
+from uuid import UUID
+
+from pydantic import BaseModel, Extra
 from src.schemas.payment_method import PaymentMethod
+from src.schemas.subscription import Subscription
 
 
 class Transaction(BaseModel):
-    id: UUID
+    id: UUID  # noqa:VNE003
     subscription: Subscription
     payment_method: PaymentMethod
     amount: int

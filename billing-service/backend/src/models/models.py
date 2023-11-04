@@ -1,9 +1,10 @@
-from src.db.postgres import Base
-from src.models.base_models import IDMixin
+# flake8: noqa: E501, VNE003
 from sqlalchemy import (UUID, Boolean, Column, Date, DateTime, ForeignKey,
                         SmallInteger, String, Text, text)
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.orm import relationship
+from src.db.postgres import Base
+from src.models.base_models import IDMixin
 
 CURRENCY = [
     ('RUB', 'Российский рубль'),

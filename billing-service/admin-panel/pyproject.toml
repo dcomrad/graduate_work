@@ -13,6 +13,7 @@ psycopg = {extras = ["binary"], version = "^3.1.12"}
 uwsgi = {version = "^2.0.22", platform = "linux"}
 pydantic = "^2.4.2"
 requests = "^2.3.11"
+django-object-actions = "^4.2.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"

@@ -3,11 +3,14 @@ import uuid
 import requests.exceptions
 from requests import Session
 
-from utils.models import Response
-from utils.urls import get_users_api_url
-
 from config.base_settings import auth_settings
 from utils.logger import logger
+from utils.models import Response
+from utils.urls import (
+    get_cancel_sub_api_url,
+    get_refund_api_url,
+    get_users_api_url,
+)
 
 
 class ApiHelper:
@@ -26,6 +29,29 @@ class ApiHelper:
         url = f'{users_api_url}/{user_id}'
         return self._make_http_request('GET', url, token=token)
 
+    def refund_transaction(
+        self,
+        transaction_id: uuid.UUID,
+        refund_api_url: str = get_refund_api_url(),
+        token: str = auth_settings.token,
+    ):
+        self.logger.info('Refunding transaction %s', transaction_id)
+        url = f'{refund_api_url}/{transaction_id}'
+        return self._make_http_request('POST', url, token=token)
+
+    def cancel_user_subscription(
+        self,
+        user_id: uuid.UUID,
+        subscription_id: uuid.UUID,
+        cancel_sub_api_url: str = get_cancel_sub_api_url(),
+        token: str = auth_settings.token,
+    ):
+        self.logger.info(
+            'Canceling subscription %s for user %s', subscription_id, user_id
+        )
+        url = f'{cancel_sub_api_url}/{user_id}/{subscription_id}'
+        return self._make_http_request('POST', url, token=token)
+
     def _make_http_request(
         self,
         method: str,
@@ -37,9 +63,12 @@ class ApiHelper:
         token: str | None = None,
     ) -> Response:
         with Session() as session:
+            self.logger.info('Making %s request to %s', method, url)
             if method.upper() not in self.ALLOWED_METHODS:
                 raise ValueError(
-                    f'Method should be one of the allowed: {self.ALLOWED_METHODS}')
+                    'Method should be one of the allowed: '
+                    f'{self.ALLOWED_METHODS}'
+                )
 
             if headers is None:
                 headers = {}
@@ -49,20 +78,21 @@ class ApiHelper:
 
             headers['Content-Type'] = 'application/json'
             caller = getattr(session, method.lower())
-            with caller(
-                url,
-                data=data,
-                json=json,
-                params=params,
-                headers=headers,
-            ) as response:
-                self.logger.debug('Response code: %s', response.status_code)
-                try:
-                    body = response.json()
-                except requests.exceptions.RequestException as e:
-                    body = response.text()
-                return Response(
-                    body=body,
-                    headers=response.headers,
-                    status=response.status_code,
-                )
+            try:
+                with caller(
+                    url,
+                    data=data,
+                    json=json,
+                    params=params,
+                    headers=headers,
+                ) as response:
+                    self.logger.debug(
+                        'Response code: %s', response.status_code
+                    )
+                    return Response(
+                        body=response.json(),
+                        headers=response.headers,
+                        status=response.status_code,
+                    )
+            except requests.exceptions.RequestException as e:
+                self.logger.exception(e)

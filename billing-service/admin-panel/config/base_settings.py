@@ -37,7 +37,13 @@ class LoggerSettings(BaseSettings):
     loglevel: str = Field(validation_alias='LOGLEVEL', default='INFO')
 
 
+class BillingApiSettings(BaseSettings):
+    host: str = Field(validation_alias='BILLING_API_HOST', default='localhost')
+    port: int = Field(validation_alias='BILLING_API_PORT', default=5005)
+
+
 postgres_settings = PostgresSettings()
 django_security_settings = DjangoSecuritySettings()
 auth_settings = AuthSettings()
 logger_settings = LoggerSettings()
+billing_api_settings = BillingApiSettings()

@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Sequence
 
 from sqlalchemy import and_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +16,13 @@ class CRUDBase:
             self,
             session: AsyncSession,
             attrs: dict[str, Any]
-    ):
+    ) -> Any | None:
+        """Возвращает первый элемент, соответствующий условию поиска в attrs.
+        Например:
+            attrs={'id': 5} - вернёт запись, у которого id=5
+        Обычно используется, есть уверенность, что в БД есть только один
+        элемент, соответствующий условию.
+        """
         if len(attrs) == 0:
             raise ValueError('There should be at least one key=value variable')
 
@@ -31,7 +37,12 @@ class CRUDBase:
             limit: int | None = None,
             offset: int | None = None,
             sort: str | None = None,
-    ):
+    ) -> Sequence[Any]:
+        """Возвращает список элементов, удовлетворяющих условию поиска в attrs.
+        Например:
+            attrs={'is_active': True} - вернёт все активные записи
+        :param sort: ключ сортировки (<имя поля> asc | desc)
+        """
         db_objs = await session.execute(
             self._make_query(attrs, limit=limit, offset=offset, sort=sort)
         )
@@ -42,6 +53,9 @@ class CRUDBase:
             obj_in: dict[str, Any] | ModelType,
             session: AsyncSession,
     ):
+        """Создаёт в БД запись из полученного объекта. Может быть передан как
+        словарь с данными, необходимыми для создания объекта модели, там и сам
+        объект модели."""
         if not isinstance(obj_in, dict) or not isinstance(obj_in, self.model):
             msg = f'Source object should be of types: dict or {self.model}'
             self.logger.error(msg)
@@ -59,6 +73,9 @@ class CRUDBase:
             attrs: dict[str, Any],
             obj_in: dict[str, Any] | ModelType,
     ):
+        """Обновляет первую запись в БД, соответствующую условию поиска в
+        attrs. Если obj_in передан в виде dict, достаточно иметь в нём только
+        обновляемые поля."""
         if not (isinstance(obj_in, dict) or isinstance(obj_in, self.model)):
             msg = f'Source object should be of types: dict or {self.model}'
             self.logger.error(msg)

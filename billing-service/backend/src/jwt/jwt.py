@@ -18,7 +18,10 @@ def login_required(required_permissions: list[str] | None = None):
             if authorize is None:
                 msg = ('Set "authorize: AuthJWT = Depends()" as the '
                        f'"{func.__name__}" function parameter')
-                raise ValueError(msg)
+                raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    detail=msg
+                )
 
             await authorize.jwt_required()
 

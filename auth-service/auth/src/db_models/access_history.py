@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import (Column, DateTime, ForeignKey, Integer, String,
+from sqlalchemy import (UUID, Column, DateTime, ForeignKey, String,
                         UniqueConstraint)
 from src.db.postgres import Base
 from src.db_models.base_models import IDMixin
@@ -28,6 +28,6 @@ class AccessHistory(Base, IDMixin):
             'listeners': [('after_create', create_partition)],
         }
     )
-    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_id = Column(UUID, ForeignKey('user.id'), nullable=False)
     access_time = Column(DateTime(timezone=True), nullable=False, primary_key=True, default=datetime.now)
     user_agent = Column(String(200), nullable=False)

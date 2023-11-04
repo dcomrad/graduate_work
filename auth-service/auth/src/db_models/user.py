@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, String, Text
+from sqlalchemy import Boolean, Column, SmallInteger, String, Text
 from sqlalchemy.orm import relationship
 from src.db.postgres import Base
 from src.db_models.base_models import IDMixin
@@ -14,6 +14,8 @@ class User(Base, IDMixin):
     full_name = Column(String(100), nullable=False)
     time_zone = Column(String(100), nullable=False, default='Europe/Moscow')
     notifications_enabled = Column(Boolean, nullable=False, default=True)
+    content_permission_rank = Column(SmallInteger, default=0)
+
     access_history = relationship('AccessHistory', cascade='delete',
                                   order_by="AccessHistory.access_time.desc()")
 

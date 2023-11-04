@@ -19,7 +19,7 @@ router = APIRouter(prefix='/backoffice')
     status_code=HTTPStatus.ACCEPTED,
     **openapi.backoffice.refund.model_dump()
 )
-@login_required('backoffice_manager')
+@login_required(['billing-manager'])
 async def refund(
         transaction_id: UUID = Path(..., description='ID способа оплаты'),
         session: AsyncSession = Depends(get_async_session),
@@ -40,7 +40,7 @@ async def refund(
     status_code=HTTPStatus.ACCEPTED,
     **openapi.backoffice.cancel_subscription.model_dump()
 )
-@login_required('backoffice_manager')
+@login_required(['billing-manager'])
 async def cancel_subscription(
         user_subscription_id: UUID = Path(..., description='ID способа оплаты'),  # noqa:E501
         session: AsyncSession = Depends(get_async_session),

@@ -8,12 +8,12 @@ def get_users_api_url():
 def get_refund_api_url():
     return (
         f'http://{billing_api_settings.host}:{billing_api_settings.port}'
-        '/api/v1/refund'
+        '/api/v1/backoffice/refund'
     )
 
 
 def get_cancel_sub_api_url():
     return (
         f'http://{billing_api_settings.host}:{billing_api_settings.port}'
-        '/api/v1/cancel'
+        '/api/v1/backoffice/subscription'
     )

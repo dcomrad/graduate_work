@@ -3,7 +3,7 @@ import uuid
 import requests.exceptions
 from requests import Session
 
-from config.base_settings import auth_settings
+from config.base_settings import auth_settings, billing_api_settings
 from utils.logger import logger
 from utils.models import Response
 from utils.urls import (
@@ -33,7 +33,7 @@ class ApiHelper:
         self,
         transaction_id: uuid.UUID,
         refund_api_url: str = get_refund_api_url(),
-        token: str = auth_settings.token,
+        token: str = billing_api_settings.token,
     ):
         self.logger.info('Refunding transaction %s', transaction_id)
         url = f'{refund_api_url}/{transaction_id}'
@@ -41,16 +41,15 @@ class ApiHelper:
 
     def cancel_user_subscription(
         self,
-        user_id: uuid.UUID,
-        subscription_id: uuid.UUID,
+        user_subscription_id: uuid.UUID,
         cancel_sub_api_url: str = get_cancel_sub_api_url(),
-        token: str = auth_settings.token,
+        token: str = billing_api_settings.token,
     ):
         self.logger.info(
-            'Canceling subscription %s for user %s', subscription_id, user_id
+            'Canceling user subscription %s', user_subscription_id
         )
-        url = f'{cancel_sub_api_url}/{user_id}/{subscription_id}'
-        return self._make_http_request('POST', url, token=token)
+        url = f'{cancel_sub_api_url}/{user_subscription_id}'
+        return self._make_http_request('DELETE', url, token=token)
 
     def _make_http_request(
         self,

@@ -20,7 +20,7 @@ class TransactionAdmin(
     DjangoObjectActions, admin.ModelAdmin, UserFullnameMixin
 ):
     list_display = (
-        'get_user_id',
+        'user_id',
         'get_user_fullname',
         'provider',
         'subscription',
@@ -29,15 +29,11 @@ class TransactionAdmin(
         'created_at',
     )
     list_filter = (
-        'user_id__user_id',
+        'user_id',
         'created_at',
     )
     readonly_fields = ('get_user_fullname',)
     change_actions = ('refund_transaction',)
-
-    @admin.display(description='User ID')
-    def get_user_id(self, obj):
-        return obj.user_id
 
     @action(label='Refund', description='Refund this transaction')
     def refund_transaction(self, _, obj):
@@ -84,8 +80,7 @@ class UserSubscriptionAdmin(
     )
     def cancel_user_subscription(self, _, obj):
         api_helper = ApiHelper()
-        user_id = obj.user_id
-        subscription_id = obj.subscription.id
+        user_subscription_id = obj.id
         api_helper.cancel_user_subscription(
-            user_id=user_id, subscription_id=subscription_id
+            user_subscription_id=user_subscription_id,
         )

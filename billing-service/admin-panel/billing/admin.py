@@ -58,6 +58,9 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'permission_rank',
     )
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(UserSubscription)
 class UserSubscriptionAdmin(

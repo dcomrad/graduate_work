@@ -12,7 +12,7 @@ class PostgresSettings(BaseSettings):
     port: int = Field(validation_alias='POSTGRES_PORT', default=5432)
     options: str = Field(
         validation_alias='POSTGRES_OPTIONS',
-        default='',
+        default='-c search_path=public,billing',
     )
 
 
@@ -28,9 +28,9 @@ class DjangoSecuritySettings(BaseSettings):
 
 
 class AuthSettings(BaseSettings):
-    host: str = Field(validation_alias='AUTH_HOST', default='51.250.6.208')
-    port: int = Field(validation_alias='AUTH_PORT', default=5002)
-    token: str = Field(validation_alias='AUTH_TOKEN', default='default-token')
+    host: str = Field(validation_alias='AUTH_API_HOST', default='51.250.6.208')
+    port: int = Field(validation_alias='AUTH_API_HOST', default=5002)
+    token: str = Field(validation_alias='JWT_TOKEN', default='default-token')
 
 
 class LoggerSettings(BaseSettings):
@@ -38,8 +38,9 @@ class LoggerSettings(BaseSettings):
 
 
 class BillingApiSettings(BaseSettings):
-    host: str = Field(validation_alias='BILLING_API_HOST', default='localhost')
-    port: int = Field(validation_alias='BILLING_API_PORT', default=5005)
+    host: str = Field(validation_alias='BACKEND_HOST', default='localhost')
+    port: int = Field(validation_alias='BACKEND_PORT', default=9900)
+    token: str = Field(validation_alias='JWT_TOKEN', default='default-token')
 
 
 postgres_settings = PostgresSettings()

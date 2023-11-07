@@ -88,8 +88,6 @@ services:
     restart: on-failure
     depends_on:
       - rabbit
-    ports:
-      - ${PUBLISHER_PORT}:${PUBLISHER_PORT}
     expose:
       - ${PUBLISHER_PORT}
     env_file:

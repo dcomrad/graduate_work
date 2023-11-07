@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 from src.schemas.permission import PermissionCreate, PermissionRead
@@ -9,7 +10,7 @@ class RoleBase(BaseModel):
 
 
 class RoleRead(RoleBase):
-    id: int
+    id: UUID
     name: str
 
     class Config:
@@ -17,7 +18,7 @@ class RoleRead(RoleBase):
 
 
 class ExtendedRoleRead(RoleBase):
-    id: int
+    id: UUID
     name: str
     permissions: Optional[list[PermissionRead]]
 

@@ -1,17 +1,18 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel
 
 
 class AccessHistoryBase(BaseModel):
     """Базовая схема истории входов пользователя."""
-    user_id: int
+    user_id: UUID
     user_agent: str
 
 
 class AccessHistoryRead(AccessHistoryBase):
     """Схема истории входов пользователя. Используется для http ответа."""
-    id: int
+    id: UUID
     access_time: datetime
 
     class Config:

@@ -1,2 +1,14 @@
+# Общие настройки приложения
+APP_NAME="Сервис биллинга"
+DEBUG=True
+
+# Используется для отправки запросов в другие сервисы
+JWT_TOKEN=<JWT token>
+
+# Используется для проверки jwt токенов при обработке http-запросов
+JWT_ALGORITHM=RS256
+JWT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgE/ywzqXpoY59CWDerC1vvap8jMh\nhqBmfFkigRL8vaj+DR8AL+LGik7diD6Y79VY6o4NRyqgFpoipA7AzXIC6blsxTCU\negvwB/qe+qBxIMyRmLc5jiEWhv0QZnvX5EnVdc9QKI8Sm0+5wC6yjxGBQ68qrHnv\nxpXAIdQBkhGOu5CVAgMBAAE=\n-----END PUBLIC KEY-----"
+
+# Ключи платёжного провайдера Stripe
 STRIPE_SECRET_KEY=<Stripe secret key>
 STRIPE_PUBLISHABLE_KEY=<Stripe publishable key>

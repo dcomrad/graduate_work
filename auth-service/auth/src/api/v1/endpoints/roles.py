@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1 import openapi
@@ -26,7 +28,7 @@ router = APIRouter(prefix='/roles')
     **openapi.roles.get_all.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-reader', 'auth-manager'])
 async def get_all(
         request: Request,  # noqa
         authorize: AuthJWT = Depends(),  # noqa
@@ -42,10 +44,10 @@ async def get_all(
     **openapi.roles.get.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-reader', 'auth-manager'])
 async def get(
         request: Request,  # noqa
-        role_id: int,
+        role_id: UUID,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
 ):
@@ -63,10 +65,10 @@ async def get(
     **openapi.roles.get_role_permissions.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-reader', 'auth-manager'])
 async def get_role_permissions(
         request: Request,  # noqa
-        role_id: int,
+        role_id: UUID,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
 ):
@@ -81,7 +83,7 @@ async def get_role_permissions(
     **openapi.roles.create.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-manager'])
 async def create(
         request: Request,  # noqa
         role: ExtendedRoleCreate,
@@ -118,10 +120,10 @@ async def create(
     **openapi.roles.update.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-manager'])
 async def update(
         request: Request,  # noqa
-        role_id: int,
+        role_id: UUID,
         role_update_data: RoleUpdate,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
@@ -136,10 +138,10 @@ async def update(
     **openapi.roles.delete.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-manager'])
 async def delete(
         request: Request,  # noqa
-        role_id: int,
+        role_id: UUID,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
 ):
@@ -154,10 +156,10 @@ async def delete(
     **openapi.roles.remove_role_permissions.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-manager'])
 async def remove_role_permissions(
         request: Request,  # noqa
-        role_id: int,
+        role_id: UUID,
         permissions_to_delete: list[PermissionUpdate],
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)

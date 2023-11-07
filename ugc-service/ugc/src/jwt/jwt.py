@@ -6,9 +6,9 @@ from fastapi import HTTPException
 from .permissions import SUPERUSER_PERMISSION
 
 
-def login_required(required_permission: None | str = None):
+def login_required(required_permissions: list[str] | None = None):
     """Декоратор для авторизации пользователя по jwt токену. Если установлен
-    параметр required_permission, то в случае отсутствия указанного разрешения
+    параметр required_permissions, то в случае отсутствия указанного разрешения
     в списке разрешений пользователя, находящемся в jwt токене, выбрасывается
     исключение."""
     def wrapper(func):
@@ -16,7 +16,8 @@ def login_required(required_permission: None | str = None):
         async def inner(*args, **kwargs):
             authorize = kwargs.get('authorize')
             if authorize is None:
-                msg = 'Authorizing issues. Please contact the administrator.'
+                msg = ('Set "authorize: AuthJWT = Depends()" as the '
+                       f'"{func.__name__}" function parameter')
                 raise HTTPException(
                     status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     detail=msg
@@ -24,10 +25,10 @@ def login_required(required_permission: None | str = None):
 
             await authorize.jwt_required()
 
-            if required_permission:
+            if required_permissions:
                 raw_jwt = await authorize.get_raw_jwt()
-                user_permissions = raw_jwt.get('perm')
-                _check_permission(user_permissions, required_permission)
+                user_permissions = raw_jwt.get('permissions')
+                _check_permission(user_permissions, required_permissions)
 
             return await func(*args, **kwargs)
         return inner
@@ -35,15 +36,13 @@ def login_required(required_permission: None | str = None):
 
 
 def _check_permission(
-        user_permissions: str | list[str],
-        required_permission: str
+        user_permissions: list[str],
+        required_permissions: list[str]
 ) -> None:
     """Проверяет наличие требуемого разрешения, среди пользовательских."""
-    allowed_permissions = {SUPERUSER_PERMISSION, required_permission}
-    if isinstance(user_permissions, str):
-        user_permissions = [user_permissions]
+    allowed_permissions = {SUPERUSER_PERMISSION, *required_permissions}
 
-    if not allowed_permissions & set(user_permissions):
+    if not allowed_permissions & {*user_permissions}:
         raise HTTPException(
             status_code=HTTPStatus.FORBIDDEN,
             detail='Permission denied'

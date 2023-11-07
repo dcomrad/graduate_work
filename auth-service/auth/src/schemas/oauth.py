@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -6,6 +8,6 @@ class ServiceCreate(BaseModel):
 
 
 class UserServiceCreate(BaseModel):
-    user_id: int
-    service_id: int
+    user_id: UUID
+    service_id: UUID
     user_service_id: str

@@ -17,11 +17,11 @@ async def get_user_tokens(
         authorize: AuthJWT,
         token_storage: RedisTokenStorage,
 ) -> Token:
-    permissions = SUPERUSER_PERMISSION if user.is_superuser else user.permissions
-    tokens = await generate_tokens(user.id, permissions, authorize)
+    permissions = [SUPERUSER_PERMISSION] if user.is_superuser else user.permissions
+    tokens = await generate_tokens(user, permissions, authorize)
 
     await token_storage.set_token(
-        user=user.id,
+        user=str(user.id),
         user_agent=user_agent,
         token=await authorize.get_jti(tokens.refresh)
     )
@@ -30,16 +30,19 @@ async def get_user_tokens(
 
 
 async def generate_tokens(
-        subject: int,
+        user: User,
         permissions: list[str],
         authorize: AuthJWT
 ) -> Token:
     """Генерирует пару access и refresh токенов. Записывает в access токен
     список разрешений, согласно аргумента permission."""
-    user_claims = {'perm': permissions}
-    access_token = await authorize.create_access_token(subject=subject,
+    user_claims = {
+        'permissions': permissions,
+        'content_permission_rank': user.content_permission_rank
+    }
+    access_token = await authorize.create_access_token(subject=str(user.id),
                                                        user_claims=user_claims)
 
-    refresh_token = await authorize.create_refresh_token(subject=subject)
+    refresh_token = await authorize.create_refresh_token(subject=str(user.id))
 
     return Token(access=access_token, refresh=refresh_token)

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -6,7 +8,7 @@ class PermissionBase(BaseModel):
 
 
 class PermissionRead(PermissionBase):
-    id: int
+    id: UUID
     name: str
 
     class Config:

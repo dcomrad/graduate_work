@@ -24,7 +24,7 @@ class TransactionAdmin(
         'get_user_fullname',
         'provider',
         'subscription',
-        'amount',
+        'actual_amount',
         'status',
         'created_at',
     )
@@ -32,7 +32,10 @@ class TransactionAdmin(
         'user_id',
         'created_at',
     )
-    readonly_fields = ('get_user_fullname',)
+    readonly_fields = (
+        'get_user_fullname',
+        'actual_amount',
+    )
     change_actions = ('refund_transaction',)
 
     @action(label='Refund', description='Refund this transaction')
@@ -41,18 +44,25 @@ class TransactionAdmin(
         transaction_id = obj.id
         api_helper.refund_transaction(transaction_id=transaction_id)
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'name',
-        'price',
+        'actual_price',
         'currency',
         'is_active',
         'recurring_interval',
         'recurring_interval_count',
         'permission_rank',
     )
+    readonly_fields = ('actual_price',)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -84,3 +94,9 @@ class UserSubscriptionAdmin(
         api_helper.cancel_user_subscription(
             user_subscription_id=user_subscription_id,
         )
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

@@ -14,7 +14,7 @@ class RedisTokenStorage(AbstractTokenStorage):
 
     async def set_token(
             self,
-            user: int,
+            user: str,
             user_agent: str,
             token: str,
             expire_in_s: int = settings.jwt.authjwt_refresh_token_expires
@@ -24,18 +24,18 @@ class RedisTokenStorage(AbstractTokenStorage):
                                token, ex=expire_in_s)
         await self.storage.sadd(user, user_agent)
 
-    async def get_token(self, user: int, user_agent: str) -> str | None:
+    async def get_token(self, user: str, user_agent: str) -> str | None:
         """См. описание метода в базовом классе."""
         result = await self.storage.get(self._make_key(user, user_agent))
         return None if result is None else result.decode()
 
-    async def delete_token(self, user: int, user_agent: str) -> None:
+    async def delete_token(self, user: str, user_agent: str) -> None:
         """См. описание метода в базовом классе."""
         await self.storage.delete(self._make_key(user, user_agent))
 
     async def delete_tokens(
             self,
-            user: int,
+            user: str,
             exclude_user_agent: str | None = None
     ) -> None:
         """См. описание метода в базовом классе."""
@@ -53,7 +53,7 @@ class RedisTokenStorage(AbstractTokenStorage):
         await self.storage.close()
 
     @staticmethod
-    def _make_key(user: int, user_agent: str):
+    def _make_key(user: str, user_agent: str):
         """Метод хеширует составной ключ для использования в Redis."""
         return f'{user}:{md5(user_agent.encode("UTF-8")).hexdigest()}'
 

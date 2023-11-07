@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Extra, Field, validator
 from src.schemas.role import BaseRoleCreate, RoleRead
@@ -6,7 +7,7 @@ from src.schemas.role import BaseRoleCreate, RoleRead
 
 class UserRead(BaseModel):
     """Схема пользователя. Используется для http-ответа."""
-    id: int
+    id: UUID
     login: str
     full_name: str
     email: str

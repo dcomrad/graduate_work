@@ -18,6 +18,13 @@ update = BaseOpenapi(
     response_description='Обновленные данные'
 )
 
+update_user_content_permission_rank = BaseOpenapi(
+    summary='Обновление значения content_permission_rank пользователя',
+    description=('content_permission_rank определяет права доступа '
+                 'пользователя к различному контенту'),
+    response_description=''
+)
+
 remove_user_roles = BaseOpenapi(
     summary='Удаление ролей у пользователя',
     description=('Удаление выбранных ролей у пользователя по его id'),

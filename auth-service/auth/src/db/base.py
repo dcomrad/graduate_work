@@ -12,7 +12,7 @@ class AbstractTokenStorage(ABC):
     @abstractmethod
     async def set_token(
             self,
-            user: int,
+            user: str,
             user_agent: str,
             token: str,
             expire_in_s: int
@@ -27,7 +27,7 @@ class AbstractTokenStorage(ABC):
         pass
 
     @abstractmethod
-    async def get_token(self, user: int, user_agent: str) -> str | None:
+    async def get_token(self, user: str, user_agent: str) -> str | None:
         """Метод получения токена пользователя из хранилища.
         :param user - идентификатор пользователя.
         :param user_agent - название пользовательского приложения, с которого
@@ -36,7 +36,7 @@ class AbstractTokenStorage(ABC):
         pass
 
     @abstractmethod
-    async def delete_token(self, user: int, user_agent: str) -> None:
+    async def delete_token(self, user: str, user_agent: str) -> None:
         """Метод удаления токена пользователя из хранилища.
         :param user - идентификатор пользователя.
         :param user_agent - название пользовательского приложения, с которого
@@ -47,7 +47,7 @@ class AbstractTokenStorage(ABC):
     @abstractmethod
     async def delete_tokens(
             self,
-            user: int,
+            user: str,
             exclude_user_agent: None | str = None
     ) -> None:
         """Метод удаления всех токенов пользователя из хранилища.

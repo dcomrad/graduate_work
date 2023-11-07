@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, Request
+from http import HTTPStatus
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Path, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1 import openapi
 from src.core.config import settings
@@ -23,7 +26,7 @@ router = APIRouter(prefix='/users')
     **openapi.users.get_all.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='users_management')
+@login_required(['auth-reader', 'auth-manager'])
 async def get_all(
         request: Request,  # noqa
         authorize: AuthJWT = Depends(),  # noqa
@@ -39,10 +42,10 @@ async def get_all(
     **openapi.users.get.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='users_management')
+@login_required(['auth-reader', 'auth-manager'])
 async def get(
         request: Request,  # noqa
-        user_id: int,
+        user_id: UUID,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
 ):
@@ -59,10 +62,10 @@ async def get(
     **openapi.users.update.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='users_management')
+@login_required(['auth-manager'])
 async def update(
         request: Request,  # noqa
-        user_id: int,
+        user_id: UUID,
         update_data: UserUpdatePublicData,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
@@ -81,16 +84,42 @@ async def update(
 
     return await user_crud.update(user_data, update_data, session)
 
+
+@router.patch(
+    '/{user_id}/content_permission_rank/{permission_rank}',
+    status_code=HTTPStatus.NO_CONTENT,
+    **openapi.users.update_user_content_permission_rank.dict()
+)
+@limiter.limit(f"{settings.project.rpm_limit}/minute")
+@login_required(['auth-manager'])
+async def update_user_content_permission_rank(
+        request: Request,  # noqa
+        user_id: UUID,
+        permission_rank: int = Path(
+            ..., ge=0, le=9, description='Новое значение permission rank'
+        ),
+        authorize: AuthJWT = Depends(),  # noqa
+        session: AsyncSession = Depends(get_async_session)
+):
+    user_data = await user_crud.get(user_id, session)
+    if user_data is None:
+        raise_not_found('Пользователь не найден')
+
+    await user_crud.update(
+        user_data, {'content_permission_rank': permission_rank}, session
+    )
+
+
 @router.delete(
     '/{user_id}/remove_user_roles',
     response_model=UserRead,
     **openapi.users.remove_user_roles.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='users_management')
+@login_required(['auth-manager'])
 async def remove_user_roles(
         request: Request,  # noqa
-        user_id: int,
+        user_id: UUID,
         roles_to_delete: list[RoleUpdate],
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)

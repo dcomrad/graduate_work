@@ -134,7 +134,7 @@ class CRUDBase:
         """Обновление записи в БД, соответствующей объекту модели, поля
         которого обновлены в соответствии с аргументом obj_in."""
         obj_data = jsonable_encoder(db_obj)
-        update_data = obj_in.dict(exclude_unset=True)
+        update_data = obj_in if isinstance(obj_in, dict) else obj_in.dict(exclude_unset=True)  # noqa
 
         info(f'Вызов метода update для {self.model}.\n'
              f'Параметры вызова:\n'

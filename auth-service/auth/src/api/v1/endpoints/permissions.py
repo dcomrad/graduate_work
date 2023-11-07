@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.v1 import openapi
@@ -21,7 +23,7 @@ router = APIRouter(prefix='/permissions')
     **openapi.permissions.get_all.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-reader', 'auth-manager'])
 async def get_all(
         request: Request,  # noqa
         authorize: AuthJWT = Depends(),  # noqa
@@ -37,10 +39,10 @@ async def get_all(
     **openapi.permissions.get.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-reader', 'auth-manager'])
 async def get(
         request: Request,  # noqa
-        permission_id: int,
+        permission_id: UUID,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
 ):
@@ -58,7 +60,7 @@ async def get(
     **openapi.permissions.create.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-manager'])
 async def create(
         request: Request,  # noqa
         permission: PermissionCreate,
@@ -76,10 +78,10 @@ async def create(
     **openapi.permissions.update.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-manager'])
 async def update(
         request: Request,  # noqa
-        permission_id: int,
+        permission_id: UUID,
         permission_update_data: PermissionUpdate,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
@@ -95,10 +97,10 @@ async def update(
     **openapi.permissions.delete.dict()
 )
 @limiter.limit(f"{settings.project.rpm_limit}/minute")
-@login_required(required_permission='access_management')
+@login_required(['auth-manager'])
 async def delete(
         request: Request,  # noqa
-        permission_id: int,
+        permission_id: UUID,
         authorize: AuthJWT = Depends(),  # noqa
         session: AsyncSession = Depends(get_async_session)
 ):

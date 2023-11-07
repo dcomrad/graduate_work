@@ -4,6 +4,14 @@ server {
 
     root /data;
 
+    location /admin/ {
+        proxy_pass http://${ADMIN_HOST}:${ADMIN_PORT}/admin/;
+    }
+
+    location /api/ {
+        proxy_pass http://${BACKEND_HOST}:${BACKEND_PORT}/api/;
+    }
+
     location ~* \.(?:jpg|jpeg|gif|png|ico|css|js)$ {
         log_not_found off;
         expires 90d;

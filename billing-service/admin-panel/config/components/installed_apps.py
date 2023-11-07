@@ -6,4 +6,5 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'billing.apps.BillingConfig',
+    'django_object_actions',
 ]

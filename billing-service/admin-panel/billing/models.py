@@ -16,9 +16,21 @@ class UUIDMixin(models.Model):
         abstract = True
 
 
+class PaymentMethod(UUIDMixin):
+    type = models.CharField(max_length=10, blank=True, null=True)
+    payload = models.JSONField()
+    is_default = models.BooleanField()
+    provider = models.ForeignKey('Provider', models.DO_NOTHING)
+    user_id = models.UUIDField()
+    provider_payment_method_id = models.CharField(max_length=64)
+
+    class Meta:
+        managed = False
+        db_table = 'payment_method'
+
+
 class Provider(UUIDMixin):
     name = models.CharField(max_length=50)
-    created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -30,14 +42,13 @@ class Provider(UUIDMixin):
 
 class Subscription(UUIDMixin):
     name = models.CharField(max_length=120)
+    description = models.TextField(blank=True, null=True)
     price = models.SmallIntegerField()
     is_active = models.BooleanField()
-    recurring_interval = models.CharField(
-        max_length=10, choices=RecurringIntervalChoices.choices
-    )
+    recurring_interval = models.CharField(max_length=10, blank=True, null=True)
     recurring_interval_count = models.SmallIntegerField()
     permission_rank = models.SmallIntegerField(blank=True, null=True)
-    currency = models.CharField(max_length=10, choices=CurrencyChoices.choices)
+    currency = models.CharField(max_length=10, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -47,8 +58,8 @@ class Subscription(UUIDMixin):
         return self.name
 
 
-class UserSubscription(models.Model):
-    user_id = models.UUIDField(primary_key=True)
+class UserSubscription(UUIDMixin):
+    user_id = models.UUIDField()
     subscription = models.ForeignKey(Subscription, models.DO_NOTHING)
     created_at = models.DateTimeField(blank=True, null=True)
     expired_at = models.DateField(blank=True, null=True)
@@ -62,21 +73,13 @@ class UserSubscription(models.Model):
 
 class Transaction(UUIDMixin):
     provider = models.ForeignKey(Provider, models.DO_NOTHING)
-    idempotency_key = models.UUIDField()
-    user = models.ForeignKey(
-        UserSubscription,
-        to_field='user_id',
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True,
-    )
+    user_id = models.UUIDField()
+    payment_method = models.ForeignKey(PaymentMethod, models.DO_NOTHING)
+    provider_transaction_id = models.CharField(max_length=64)
     amount = models.SmallIntegerField()
-    subscription = models.ForeignKey(
-        Subscription, models.DO_NOTHING, blank=True, null=True
-    )
-    status = models.CharField(
-        max_length=40, choices=TransactionStatusChoices.choices
-    )
+    subscription = models.ForeignKey(Subscription, models.DO_NOTHING)
+    currency = models.CharField(max_length=10, blank=True, null=True)
+    status = models.CharField(max_length=40, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:

@@ -6,11 +6,12 @@ from pydantic import HttpUrl
 from src.api.v1 import openapi
 from src.core.exceptions import NotFoundException
 from src.core.logger import logger_factory
-from src.db.crud import (payment_method_crud, transaction_crud,
+from src.db.crud import (transaction_crud, user_payment_method_crud,
                          user_subscription_crud)
 from src.db.postgres import AsyncSession, get_async_session
 from src.jwt import AuthJWT, login_required
-from src.schemas import HTMLForm, PaymentMethod, Transaction, UserSubscription
+from src.schemas import (HTMLForm, Transaction, UserPaymentMethod,
+                         UserSubscription)
 
 logger = logger_factory(__name__)
 
@@ -25,7 +26,7 @@ transactions_router = APIRouter(prefix='/transactions')
 
 @payment_methods_router.get(
     '/',
-    response_model=list[PaymentMethod],
+    response_model=list[UserPaymentMethod],
     **openapi.customer.get_all_payment_methods.model_dump()
 )
 @login_required()
@@ -33,17 +34,15 @@ async def get_all_payment_methods(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос всех способов оплаты пользователя {user_id}')
 
-    payment_methods = await payment_method_crud.get_all(
+    payment_methods = await user_payment_method_crud.get_all(
         session, {'user_id': user_id}
     )
 
     return [
-        PaymentMethod.model_validate(payment_method, from_attributes=True)
+        UserPaymentMethod.model_validate(payment_method, from_attributes=True)
         for payment_method in payment_methods
     ]
 
@@ -68,9 +67,7 @@ async def add_payment_method(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug('Запрос на добавление нового способа оплаты '
                  f'пользователю {user_id} ("{button_text}", "{redirect_url}")')
 
@@ -80,7 +77,7 @@ async def add_payment_method(
 
 @payment_methods_router.post(
     '/{payment_method_id}',
-    status_code=HTTPStatus.ACCEPTED,
+    status_code=HTTPStatus.NO_CONTENT,
     **openapi.customer.set_default_payment_method.model_dump()
 )
 @login_required()
@@ -89,13 +86,11 @@ async def set_default_payment_method(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос на установку способа оплаты {payment_method_id} '
                  f'по-умолчанию для пользователя {user_id}')
 
-    payment_method = await payment_method_crud.get(
+    payment_method = await user_payment_method_crud.get(
         session, {'user_id': user_id, 'id': payment_method_id}
     )
     if payment_method is None:
@@ -105,25 +100,23 @@ async def set_default_payment_method(
     if payment_method.is_default:
         return
 
-    default_payment_method = await payment_method_crud.get(
+    default_payment_method = await user_payment_method_crud.get(
         session, {'user_id': user_id, 'is_default': True}
     )
 
     if default_payment_method:
-        default_payment_method.is_default = False
-        await payment_method_crud.update(
-            session, {'id': default_payment_method.id}, default_payment_method
+        await user_payment_method_crud.update(
+            session, {'id': default_payment_method.id}, {'is_default': False}
         )
 
-    payment_method.is_default = True
-    await payment_method_crud.update(
-        session, {'id': payment_method.id}, payment_method
+    await user_payment_method_crud.update(
+        session, {'id': payment_method.id}, {'is_default': True}
     )
 
 
 @payment_methods_router.delete(
     '/{payment_method_id}',
-    status_code=HTTPStatus.ACCEPTED,
+    status_code=HTTPStatus.NO_CONTENT,
     **openapi.customer.remove_payment_method.model_dump()
 )
 @login_required()
@@ -132,13 +125,11 @@ async def remove_payment_method(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос на удаление способа оплаты {payment_method_id} '
                  f'у пользователя {user_id}')
 
-    payment_method = await payment_method_crud.get(
+    payment_method = await user_payment_method_crud.get(
         session, {'user_id': user_id, 'id': payment_method_id}
     )
     if payment_method is None:
@@ -161,9 +152,7 @@ async def get_subscription(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос текущей подписки пользователя {user_id}')
 
     user_subscription = await user_subscription_crud.get(
@@ -182,7 +171,7 @@ async def get_subscription(
 
 @subscriptions_router.post(
     '/{subscription_id}',
-    status_code=HTTPStatus.ACCEPTED,
+    status_code=HTTPStatus.NO_CONTENT,
     **openapi.customer.subscribe.model_dump()
 )
 @login_required()
@@ -192,9 +181,7 @@ async def subscribe(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос на добавление подписки {subscription_id} '
                  f'пользователем {user_id} '
                  f'со способом оплаты {payment_method_id}')
@@ -202,7 +189,7 @@ async def subscribe(
 
 @subscriptions_router.delete(
     '/{subscription_id}',
-    status_code=HTTPStatus.ACCEPTED,
+    status_code=HTTPStatus.NO_CONTENT,
     **openapi.customer.unsubscribe.model_dump()
 )
 @login_required()
@@ -211,9 +198,7 @@ async def unsubscribe(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос на отмену подписки {subscription_id} '
                  f'пользователем {user_id}')
 
@@ -233,9 +218,7 @@ async def get_transactions(
         session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
 ):
-    # TODO: нужен рефакторинг сервиса auth (id: int -> uuid)
     user_id = await authorize.get_jwt_subject()
-    user_id = 'f6639cde-55f9-4bad-b89b-bb340ecba4a3'
     logger.debug(f'Запрос всех транзакций пользователя {user_id}')
 
     transactions = await transaction_crud.get_all(

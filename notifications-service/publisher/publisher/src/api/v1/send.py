@@ -1,4 +1,5 @@
 import fastapi
+import http
 
 from publisher.src.api.v1.dtos.send import (
     SendBodyPayloadDTO,
@@ -11,7 +12,10 @@ from publisher.src.services.sender import get_sender_service
 router = fastapi.APIRouter()
 
 
-@router.post("/{priority}")
+@router.post(
+    '/{priority}',
+    status_code=http.HTTPStatus.ACCEPTED,
+)
 async def send(
     priority: SendQueryPriorityDTO,
     payload: SendBodyPayloadDTO,

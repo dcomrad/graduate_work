@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings
 
 IN_DOCKER: bool = os.getenv('I_AM_IN_A_DOCKER_CONTAINER', False) == 'YES'
 
-BASE_DIR: pathlib.Path = pathlib.Path(__file__).parent.parent
+BASE_DIR: pathlib.Path = pathlib.Path(__file__).parent.parent.parent
 LOG_DIR: pathlib.Path = BASE_DIR / 'logs'
 
 
@@ -32,11 +32,11 @@ class AppSettings(EnvBase):
 
     @property
     def auth_api_url(self):
-        return f'http://{self.auth_api_host}:{self.auth_api_port}/api/v1/users/'
+        return f'http://{self.auth_api_host}:{self.auth_api_port}/api/v1'
 
     @property
     def notifications_api_url(self):
-        return f'http://{self.publisher_host}:{self.publisher_port}/api/v1/send/important'
+        return f'http://{self.notifications_api_host}:{self.notifications_api_port}/api/v1'
 
 
 class JWTSettings(EnvBase):
@@ -63,8 +63,18 @@ class PostgresSettings(EnvBase):
         )
 
 
+class StripeSettings(EnvBase):
+    secret_key: str = Field(alias='STRIPE_SECRET_KEY')
+    publishable_key: str = Field(alias='STRIPE_PUBLISHABLE_KEY')
+
+
+class ServerSettings(EnvBase):
+    host: str = Field(alias='SERVER_HOST')
+    port: int = Field(alias='SERVER_PORT')
+
+
 class LoggingSettings(EnvBase):
-    log_file: pathlib.Path = LOG_DIR / 'bot.log'
+    log_file: pathlib.Path = LOG_DIR / 'billing.log'
     log_format: str = '"%(asctime)s - [%(levelname)s] - [%(name)s] - %(message)s"'
     dt_format: str = '%d.%m.%Y %H:%M:%S'
     debug: bool
@@ -73,8 +83,10 @@ class LoggingSettings(EnvBase):
 class Settings:
     app: AppSettings = AppSettings()
     jwt: JWTSettings = JWTSettings()
-    logging: LoggingSettings = LoggingSettings()
     postgres: PostgresSettings = PostgresSettings()
+    stripe: StripeSettings = StripeSettings()
+    server: ServerSettings = ServerSettings()
+    logging: LoggingSettings = LoggingSettings()
 
 
 settings = Settings()

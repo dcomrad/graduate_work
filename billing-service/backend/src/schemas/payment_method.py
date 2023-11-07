@@ -12,7 +12,7 @@ class Card(BaseModel):
     last4: str
 
 
-class PaymentMethod(BaseModel):
+class UserPaymentMethod(BaseModel):
     id: uuid.UUID
     type: str
     payload: Card

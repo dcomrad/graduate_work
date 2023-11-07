@@ -16,7 +16,7 @@ router = APIRouter(prefix='/backoffice')
 
 @router.post(
     '/refund/{transaction_id}',
-    status_code=HTTPStatus.ACCEPTED,
+    status_code=HTTPStatus.NO_CONTENT,
     **openapi.backoffice.refund.model_dump()
 )
 @login_required(['billing-manager'])
@@ -37,7 +37,7 @@ async def refund(
 
 @router.delete(
     '/subscription/{user_subscription_id}',
-    status_code=HTTPStatus.ACCEPTED,
+    status_code=HTTPStatus.NO_CONTENT,
     **openapi.backoffice.cancel_subscription.model_dump()
 )
 @login_required(['billing-manager'])

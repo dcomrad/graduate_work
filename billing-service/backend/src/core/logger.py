@@ -12,7 +12,7 @@ def logger_factory(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
 
     logger.setLevel(
-        logging.DEBUG if settings.logging.debug else logging.CRITICAL
+        logging.DEBUG if settings.logging.debug else logging.WARNING
     )
 
     c_handler = logging.StreamHandler(stdout)

@@ -1,12 +1,12 @@
 from src.core.logger import logger_factory
 from src.db.crud.base import CRUDBase
-from src.models.models import PaymentMethod
+from src.models.models import UserPaymentMethod
 
 
-class CRUDPaymentMethod(CRUDBase):
+class CRUDUserPaymentMethod(CRUDBase):
     pass
 
 
-payment_method_crud = CRUDPaymentMethod(
-    PaymentMethod, logger_factory(__name__)
+user_payment_method_crud = CRUDUserPaymentMethod(
+    UserPaymentMethod, logger_factory(__name__)
 )

@@ -8,7 +8,7 @@ ModelType = Any
 
 
 class CRUDBase:
-    def __init__(self, model: Any, logger: logging.Logger):
+    def __init__(self, model: ModelType, logger: logging.Logger):
         self.model = model
         self.logger = logger
 
@@ -16,7 +16,7 @@ class CRUDBase:
             self,
             session: AsyncSession,
             attrs: dict[str, Any]
-    ) -> Any | None:
+    ) -> ModelType | None:
         """Возвращает первый элемент, соответствующий условию поиска в attrs.
         Например:
             attrs={'id': 5} - вернёт запись, у которого id=5
@@ -37,7 +37,7 @@ class CRUDBase:
             limit: int | None = None,
             offset: int | None = None,
             sort: str | None = None,
-    ) -> Sequence[Any]:
+    ) -> Sequence[ModelType]:
         """Возвращает список элементов, удовлетворяющих условию поиска в attrs.
         Например:
             attrs={'is_active': True} - вернёт все активные записи
@@ -50,13 +50,13 @@ class CRUDBase:
 
     async def create(
             self,
-            obj_in: dict[str, Any] | ModelType,
             session: AsyncSession,
-    ):
+            obj_in: dict[str, Any] | ModelType,
+    ) -> ModelType:
         """Создаёт в БД запись из полученного объекта. Может быть передан как
         словарь с данными, необходимыми для создания объекта модели, там и сам
         объект модели."""
-        if not isinstance(obj_in, dict) or not isinstance(obj_in, self.model):
+        if not (isinstance(obj_in, dict) or isinstance(obj_in, self.model)):
             msg = f'Source object should be of types: dict or {self.model}'
             self.logger.error(msg)
             raise ValueError(msg)
@@ -71,31 +71,39 @@ class CRUDBase:
             self,
             session: AsyncSession,
             attrs: dict[str, Any],
-            obj_in: dict[str, Any] | ModelType,
-    ):
-        """Обновляет первую запись в БД, соответствующую условию поиска в
-        attrs. Если obj_in передан в виде dict, достаточно иметь в нём только
-        обновляемые поля."""
-        if not (isinstance(obj_in, dict) or isinstance(obj_in, self.model)):
-            msg = f'Source object should be of types: dict or {self.model}'
+            obj_in: dict[str, Any],
+    ) -> Sequence[ModelType]:
+        """Обновляет все записи в БД, соответствующие условию поиска в
+        attrs. Словарь obj_in содержит обновляемые поля и их значения."""
+        if not isinstance(obj_in, dict):
+            msg = 'Source object should be of type dict'
             self.logger.error(msg)
             raise ValueError(msg)
 
-        db_obj = await self.get(session, attrs)
-        if db_obj is None:
-            raise ValueError(f'There is no object in DB with attr={attrs}')
+        db_objs = await self.get_all(session, attrs)
 
-        if isinstance(obj_in, dict):
+        for db_obj in db_objs:
             for field in obj_in:
                 if hasattr(db_obj, field):
                     setattr(db_obj, field, obj_in[field])
-        else:
-            db_obj = obj_in
+            session.add(db_obj)
 
-        session.add(db_obj)
         await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
+        return db_objs
+
+    async def delete(
+            self,
+            session: AsyncSession,
+            attrs: dict[str, Any]
+    ) -> Sequence[ModelType]:
+        """Удаляет элементы, соответствующие условию поиска в attrs."""
+        db_objs = await self.get_all(session, attrs)
+
+        for db_obj in db_objs:
+            await session.delete(db_obj)
+
+        await session.commit()
+        return db_objs
 
     def _make_query(
             self,

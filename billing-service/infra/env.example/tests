@@ -1,0 +1,2 @@
+ADMIN_JWT_TOKEN=<admin-jwt-token>
+USER_JWT_TOKEN=<test-user-jwt-token>

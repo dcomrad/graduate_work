@@ -1,4 +1,4 @@
 SECRET_KEY=django-secret-key
-ALLOWED_HOSTS=127.0.0.1,*
-DEBUG=True
+ALLOWED_HOSTS=*
+DEBUG=False
 JWT_TOKEN=<admin-jwt-token>

@@ -49,6 +49,7 @@ async def stripe_webhook(
     match event['type']:
         #  Добавлен новый способ оплаты
         case 'payment_method.attached':
+            logger.info(f'Новое событие (добавление новой карты): {event}')
             payment_method = event['data']['object']
             user_id = payment_method['customer']
 
@@ -83,6 +84,7 @@ async def stripe_webhook(
 
         #  Способ оплаты удалён
         case 'payment_method.detached':
+            logger.info(f'Новое событие (удаление карты): {event}')
             payment_method = event['data']['object']
             user_id = event['data']['previous_attributes']['customer']
 
@@ -97,6 +99,7 @@ async def stripe_webhook(
 
         #  Смена статуса платежа
         case 'payment_intent.processing' | 'payment_intent.payment_failed':
+            logger.info(f'Новое событие (смена статуса транзакции): {event}')
             payment_intent = event['data']['object']
             provider_transaction_id = payment_intent['id']
             transaction_id = payment_intent['metadata']['transaction_id']
@@ -123,6 +126,7 @@ async def stripe_webhook(
 
         #  Платёж успешно совершён
         case 'payment_intent.succeeded':
+            logger.info(f'Новое событие (успешная оплата): {event}')
             payment_intent = event['data']['object']
             provider_transaction_id = payment_intent['id']
             transaction_id = payment_intent['metadata']['transaction_id']
@@ -149,6 +153,7 @@ async def stripe_webhook(
 
         #  Возврат средств успешно выполнен
         case 'charge.refunded':
+            logger.info(f'Новое событие (успешная возврат средств): {event}')
             refund = event['data']['object']
             transaction_id = refund['metadata'].get('transaction_id')
             user_id = refund['customer']

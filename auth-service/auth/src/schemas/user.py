@@ -13,6 +13,7 @@ class UserRead(BaseModel):
     email: str
     time_zone: str
     notifications_enabled: bool
+    content_permission_rank: int
     roles: Optional[list[RoleRead]]
 
     class Config:

@@ -41,7 +41,7 @@ async def refund(
     reason = 'Запрос пользователя по email'
     provider_manager = get_provider_manager(transaction.provider.name)
 
-    return await provider_manager.refund(
+    await provider_manager.refund(
         transaction.provider_transaction_id, reason
     )
 

@@ -131,9 +131,7 @@ class SubscriptionManager(BaseManager):
             # UPGRADE SUBSCRIPTION
 
             # рассчитываем размер доплаты
-            paid = user_subscription.subscription.price
-            unused_share = self._get_unused_share(user_subscription)
-            amount = subscription.price - int(paid * unused_share)
+            amount = self._calc_surcharge(user_subscription, subscription)
 
             transaction = await transaction_manager.get_or_create(
                 session,
@@ -338,12 +336,16 @@ class SubscriptionManager(BaseManager):
             await self.auth_api.set_user_content_permission_rank(self.user_id, 0)
 
     @staticmethod
-    def _get_unused_share(
-            user_subscription: UserSubscription
-    ) -> float:
+    def _calc_surcharge(
+            user_subscription: UserSubscription,
+            new_subscription: Subscription
+    ) -> int:
+        # TODO: учесть конвертацию валют
         # TODO: сделать корректный расчёт размера доплаты по формуле:
         #  <стоимость новой подписки> - <стоимость старой подписки> * <доля неизрасходованного срока>
-        return 1.0
+        paid = user_subscription.subscription.price
+        unused_share = 1.0
+        return new_subscription.price - int(paid * unused_share)
 
     @staticmethod
     def _get_new_expiration_date(

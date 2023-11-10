@@ -28,7 +28,7 @@ remove_payment_method = BaseOpenapi(
 )
 
 get_subscription = BaseOpenapi(
-    summary='Получить текущую подписку',
+    summary='Получить активную подписку',
     description='Информация пользователя о самом себе',
     response_description='Информация о подписке пользователя'
 )
@@ -40,7 +40,7 @@ subscribe = BaseOpenapi(
 )
 
 unsubscribe = BaseOpenapi(
-    summary='Отменить подписку',
+    summary='Отменить активную подписку',
     description='Отменяет автоматическое продление подписки',
 )
 

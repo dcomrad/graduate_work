@@ -1,8 +1,8 @@
 # flake8: noqa: E501, VNE003
 import enum
 
-from sqlalchemy import (UUID, Boolean, Column, Date, DateTime, Enum,
-                        ForeignKey, SmallInteger, String, Text, text)
+from sqlalchemy import (UUID, Boolean, Column, Date, DateTime, ForeignKey,
+                        Integer, SmallInteger, String, Text, text)
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 from src.db.postgres import Base
@@ -38,7 +38,7 @@ class UserSubscription(Base, IDMixin):
     subscription_id = Column(UUID, ForeignKey("subscription.id"), nullable=False)
     created_at = Column(DateTime, nullable=False, server_default=text("TIMEZONE('utc', now())"))
     expired_at = Column(Date, nullable=True)
-    auto_renewal = Column(Boolean, nullable=False, default=True)
+    renew_to = Column(UUID, nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
 
     subscription = relationship("Subscription", lazy="joined")
@@ -50,7 +50,7 @@ class Subscription(Base, IDMixin):
     name = Column(String(120), nullable=False)
     description = Column(Text(), nullable=True)
     is_active = Column(Boolean, nullable=False)
-    price = Column(SmallInteger, nullable=False)  # в центах/копейках
+    price = Column(Integer, nullable=False)  # в центах/копейках
     currency = Column(String(10), nullable=False, info={'choices': Currency}, default='RUB')
     recurring_interval = Column(String(10), nullable=False, info={'choices': RecurringInterval})
     recurring_interval_count = Column(SmallInteger, nullable=False)
@@ -72,6 +72,10 @@ class UserPaymentMethod(Base, IDMixin):
     user_id = Column(UUID, nullable=False)
     provider_id = Column(UUID, ForeignKey("provider.id"), nullable=False)
     provider_payment_method_id = Column(String(64), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, nullable=False, server_default=text("TIMEZONE('utc', now())"))
+
+    provider = relationship("Provider", lazy="joined")
 
 
 class Transaction(Base, IDMixin):
@@ -82,10 +86,11 @@ class Transaction(Base, IDMixin):
     subscription_id = Column(UUID, ForeignKey("subscription.id"), nullable=False)
     payment_method_id = Column(UUID, ForeignKey("user_payment_method.id"), nullable=False)
     provider_transaction_id = Column(String(64), nullable=True)
-    amount = Column(SmallInteger, nullable=False)  # в центах/копейках
+    amount = Column(Integer, nullable=False)  # в центах/копейках
     currency = Column(String(10), nullable=False, info={'choices': Currency}, default='RUB')
     status = Column(String(40), nullable=False, info={'choices': TransactionStatus}, default='draft')
     created_at = Column(DateTime, nullable=False, server_default=text("TIMEZONE('utc', now())"))
 
+    provider = relationship("Provider", lazy="joined")
     subscription = relationship("Subscription", lazy="joined")
     payment_method = relationship("UserPaymentMethod", lazy="joined")

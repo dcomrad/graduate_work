@@ -1,3 +1,4 @@
+import functools
 import logging
 import pathlib
 import uuid
@@ -5,11 +6,12 @@ import uuid
 import jinja2
 import pydantic
 import stripe
+from src.config.config import settings
 from src.core.logger import logger_factory
-from src.models.models import Subscription
 from src.providers.base import HTMLForm, ProviderManager
 from stripe.api_resources import Customer
-from stripe.error import InvalidRequestError, SignatureVerificationError  # noqa:F401
+from stripe.error import InvalidRequestError
+from stripe.error import SignatureVerificationError  # noqa
 
 
 class StripeProviderManager(ProviderManager):
@@ -42,15 +44,15 @@ class StripeProviderManager(ProviderManager):
         :param webhook_url: URL эндпоинта, используемый для оповещения о
         событиях со стороны Stripe
         """
+        super().__init__(webhook_url, logger)
+        if not add_card_template.exists():
+            self.logger.error(f'{self.TEMPLATE_NOT_FOUND}:{add_card_template}')
+            raise self.NotFound(self.TEMPLATE_NOT_FOUND)
+
         self.stripe = stripe
         self.stripe.api_key = secret_key
         self.stripe.publishable_key = publishable_key
-
-        if not add_card_template.exists():
-            self.logger.error(f'{self.TEMPLATE_NOT_FOUND}: {add_card_template}')  # noqa:E501
-            raise self.NotFound(self.TEMPLATE_NOT_FOUND)
         self.add_card_template = add_card_template
-        super().__init__(webhook_url, logger)
 
         self._check_or_create_webhook(self.webhook_url)
 
@@ -133,6 +135,10 @@ class StripeProviderManager(ProviderManager):
         кнопку отправки данных формы
         :return: HTML-код формы добавления нового способа оплаты
         """
+        self.logger.debug(
+            f'Запрос на добавление нового способа оплаты пользователю '
+            f'{user_id} ("{button_text}", "{return_url}")'
+        )
         customer = await self._get_or_create_customer(user_id)
 
         setup_intent = self.stripe.SetupIntent.create(
@@ -159,6 +165,10 @@ class StripeProviderManager(ProviderManager):
         :param user_id: ID клиента
         :param payment_method_id: ID способа оплаты на стороне провайдера
         """
+        self.logger.debug(
+            f'Запрос на удаление способа оплаты {payment_method_id} '
+            f'у пользователя {user_id}'
+        )
         await self._check_payment_method(user_id, payment_method_id)
         self.stripe.PaymentMethod.detach(payment_method_id)
 
@@ -166,26 +176,33 @@ class StripeProviderManager(ProviderManager):
             self,
             user_id: str,
             payment_method_id: str,
-            subscription: Subscription,
+            amount: int,
+            currency: str,
+            details: dict,
             idempotency_key: str
     ):
         """Взимает с пользователя плату за подписку.
         :param user_id: ID клиента
         :param payment_method_id: ID способа оплаты на стороне провайдера
-        :param subscription: купленная подписка
+        :param amount: оплачиваемая сумма в центах/копейках
+        :param currency: валюта оплаты
+        :param details: дополнительная информация, которая будет сохранена на
+        стороне провайдера
         :param idempotency_key: ключ идемпотентности, используемый для
         исключения двойного списания средств
         """
+        self.logger.debug(
+            f'Запрос на взимание платы в размере {amount / 100} c '
+            f'пользователя {user_id} со способом оплаты {payment_method_id}'
+        )
+
         await self._check_payment_method(user_id, payment_method_id)
         self.stripe.PaymentIntent.create(
-            amount=subscription.price,
-            currency=subscription.currency,
+            amount=amount,
+            currency=currency,
             customer=user_id,
             payment_method=payment_method_id,
-            metadata={
-                **subscription.to_dict(),
-                'transaction_id': idempotency_key
-            },
+            metadata={'transaction_id': idempotency_key, **details},
             idempotency_key=idempotency_key,
             confirm=True,
             off_session=True
@@ -201,6 +218,10 @@ class StripeProviderManager(ProviderManager):
         :param transaction_id: ID совершённой на стороне провайдера операции
         :param reason: причина возврата средств
         """
+        self.logger.debug(
+            f'Запрос на возмещение средств по транзакции {transaction_id} '
+            f'по причине {reason}'
+        )
         await self._check_transaction(transaction_id)
         try:
             self.stripe.Refund.create(
@@ -213,3 +234,13 @@ class StripeProviderManager(ProviderManager):
             )
             self.logger.error(msg)
             raise self.NotFound(msg)
+
+
+@functools.cache
+def get_stripe_manager() -> StripeProviderManager:
+    return StripeProviderManager(
+        settings.stripe.secret_key,
+        settings.stripe.publishable_key,
+        settings.stripe.template_dir / 'add_card.html',
+        settings.stripe.webhook_url
+    )

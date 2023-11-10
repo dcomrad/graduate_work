@@ -3,9 +3,9 @@ import logging
 
 import pydantic
 from src.core.exceptions import NotFoundException
-from src.models.models import Subscription
-from src.schemas import HTMLForm
 from src.services.external import AuthAPI, get_auth_api
+
+HTMLForm = str
 
 
 class ProviderManager(abc.ABC):
@@ -71,13 +71,18 @@ class ProviderManager(abc.ABC):
             self,
             user_id: str,
             payment_method_id: str,
-            subscription: Subscription,
-            idempotency_key: str
+            amount: int,
+            currency: str,
+            details: dict,
+            idempotency_key: str,
     ):
         """Взимает с пользователя плату за подписку.
         :param user_id: ID клиента
         :param payment_method_id: ID способа оплаты на стороне провайдера
-        :param subscription: купленная подписка
+        :param amount: оплачиваемая сумма в центах/копейках
+        :param currency: валюта оплаты
+        :param details: дополнительная информация, которая будет сохранена на
+        стороне провайдера
         :param idempotency_key: ключ идемпотентности, используемый для
         исключения двойного списания средств
         """

@@ -8,7 +8,6 @@ class Subscription(BaseModel):
     id: UUID  # noqa:VNE003
     name: str
     description: str
-    is_active: bool
     price: float
     currency: str
     recurring_interval: str
@@ -28,4 +27,4 @@ class UserSubscription(BaseModel):
     subscription_id: UUID
     name: str
     expired_at: date | None
-    auto_renewal: bool
+    renew_to: UUID | None

@@ -1,14 +1,14 @@
 # flake8: noqa: E501
 import os
-import pathlib
+from pathlib import Path
 
-from pydantic import Extra, Field
+from pydantic import Extra, Field, HttpUrl
 from pydantic_settings import BaseSettings
 
 IN_DOCKER: bool = os.getenv('I_AM_IN_A_DOCKER_CONTAINER', False) == 'YES'
 
-BASE_DIR: pathlib.Path = pathlib.Path(__file__).parent.parent.parent
-LOG_DIR: pathlib.Path = BASE_DIR / 'logs'
+BASE_DIR: Path = Path(__file__).parent.parent.parent
+LOG_DIR: Path = BASE_DIR / 'logs'
 
 
 class EnvBase(BaseSettings):
@@ -63,18 +63,27 @@ class PostgresSettings(EnvBase):
         )
 
 
-class StripeSettings(EnvBase):
-    secret_key: str = Field(alias='STRIPE_SECRET_KEY')
-    publishable_key: str = Field(alias='STRIPE_PUBLISHABLE_KEY')
-
-
 class ServerSettings(EnvBase):
     host: str = Field(alias='SERVER_HOST')
     port: int = Field(alias='SERVER_PORT')
 
 
+class StripeSettings(EnvBase):
+    secret_key: str = Field(alias='STRIPE_SECRET_KEY')
+    publishable_key: str = Field(alias='STRIPE_PUBLISHABLE_KEY')
+
+    @property
+    def webhook_url(self) -> HttpUrl:
+        server: ServerSettings = ServerSettings()
+        return f'http://{server.host}:{server.port}/api/v1/webhooks/stripe/'
+
+    @property
+    def template_dir(self) -> Path:
+        return BASE_DIR / 'src' / 'providers' / 'templates' / 'stripe'
+
+
 class LoggingSettings(EnvBase):
-    log_file: pathlib.Path = LOG_DIR / 'billing.log'
+    log_file: Path = LOG_DIR / 'billing.log'
     log_format: str = '"%(asctime)s - [%(levelname)s] - [%(name)s] - %(message)s"'
     dt_format: str = '%d.%m.%Y %H:%M:%S'
     debug: bool
@@ -85,7 +94,6 @@ class Settings:
     jwt: JWTSettings = JWTSettings()
     postgres: PostgresSettings = PostgresSettings()
     stripe: StripeSettings = StripeSettings()
-    server: ServerSettings = ServerSettings()
     logging: LoggingSettings = LoggingSettings()
 
 

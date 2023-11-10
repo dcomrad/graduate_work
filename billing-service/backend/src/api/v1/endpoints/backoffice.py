@@ -8,6 +8,8 @@ from src.core.logger import logger_factory
 from src.db.crud import transaction_crud, user_subscription_crud
 from src.db.postgres import AsyncSession, get_async_session
 from src.jwt import AuthJWT, login_required
+from src.models.models import TransactionStatus
+from src.providers import get_provider_manager
 
 logger = logger_factory(__name__)
 
@@ -22,17 +24,26 @@ router = APIRouter(prefix='/backoffice')
 @login_required(['billing-manager'])
 async def refund(
         transaction_id: UUID = Path(..., description='ID способа оплаты'),
-        session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
+        session: AsyncSession = Depends(get_async_session),
 ):
     logger.debug('Запрос на возмещение средств по транзакции '
                  f'{transaction_id}')
 
     transaction = await transaction_crud.get(session, {'id': transaction_id})
-    if transaction is None:
-        raise NotFoundException(f'Транзакция {transaction_id} не найдена')
+    if transaction is None or transaction.status == TransactionStatus.REFUNDED:
+        raise NotFoundException(
+            f'Транзакция {transaction_id} не найдена или средства по ней уже '
+            f'были возвращены'
+        )
 
-    # TODO: направить запрос в платёжный провайдер на возмещение средств
+    # TODO: внедрить указание причины на стороне админки
+    reason = 'Запрос пользователя по email'
+    provider_manager = get_provider_manager(transaction.provider.name)
+
+    return await provider_manager.refund(
+        transaction.provider_transaction_id, reason
+    )
 
 
 @router.delete(
@@ -43,10 +54,12 @@ async def refund(
 @login_required(['billing-manager'])
 async def cancel_subscription(
         user_subscription_id: UUID = Path(..., description='ID способа оплаты'),  # noqa:E501
-        session: AsyncSession = Depends(get_async_session),
         authorize: AuthJWT = Depends(),
+        session: AsyncSession = Depends(get_async_session),
 ):
-    logger.debug(f'Запрос на отмену подписки {user_subscription_id}')
+    logger.debug(
+        f'Запрос на отмену автопродления подписки {user_subscription_id}'
+    )
 
     user_subscription = await user_subscription_crud.get(
         session, {'id': user_subscription_id}
@@ -57,5 +70,5 @@ async def cancel_subscription(
     await user_subscription_crud.update(
         session,
         {'id': user_subscription_id},
-        {'auto_renewal': False}
+        {'renew_to': None}
     )

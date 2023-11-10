@@ -3,8 +3,6 @@ import uuid
 
 from pydantic import BaseModel
 
-HTMLForm = str
-
 
 class Card(BaseModel):
     brand: str
@@ -17,3 +15,6 @@ class UserPaymentMethod(BaseModel):
     type: str
     payload: Card
     is_default: bool
+
+    class Config:
+        from_attributes = True

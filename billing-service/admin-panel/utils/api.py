@@ -88,8 +88,12 @@ class ApiHelper:
                     self.logger.debug(
                         'Response code: %s', response.status_code
                     )
+                    try:
+                        body = response.json()
+                    except requests.exceptions.JSONDecodeError:
+                        body = response.text
                     return Response(
-                        body=response.json(),
+                        body=body,
                         headers=response.headers,
                         status=response.status_code,
                     )

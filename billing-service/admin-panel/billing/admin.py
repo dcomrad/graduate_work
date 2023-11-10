@@ -77,7 +77,7 @@ class UserSubscriptionAdmin(
         'get_user_fullname',
         'subscription',
         'expired_at',
-        'auto_renewal',
+        'renew_to',
         'is_active',
     )
     list_filter = ('user_id',)

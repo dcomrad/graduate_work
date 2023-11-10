@@ -31,6 +31,8 @@ class UserPaymentMethod(UUIDMixin):
     provider = models.ForeignKey('Provider', models.DO_NOTHING)
     user_id = models.UUIDField()
     provider_payment_method_id = models.CharField(max_length=64)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
 
     class Meta:
         managed = False
@@ -51,7 +53,7 @@ class Provider(UUIDMixin):
 class Subscription(UUIDMixin):
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    price = models.SmallIntegerField()
+    price = models.IntegerField()
     is_active = models.BooleanField()
     recurring_interval = models.CharField(
         max_length=10,
@@ -85,7 +87,7 @@ class UserSubscription(UUIDMixin):
     subscription = models.ForeignKey(Subscription, models.DO_NOTHING)
     created_at = models.DateTimeField(blank=True, null=True)
     expired_at = models.DateField(blank=True, null=True)
-    auto_renewal = models.BooleanField()
+    renew_to = models.UUIDField()
     is_active = models.BooleanField()
 
     class Meta:
@@ -98,7 +100,7 @@ class Transaction(UUIDMixin):
     user_id = models.UUIDField()
     payment_method = models.ForeignKey(UserPaymentMethod, models.DO_NOTHING)
     provider_transaction_id = models.CharField(max_length=64)
-    amount = models.SmallIntegerField()
+    amount = models.IntegerField()
     subscription = models.ForeignKey(Subscription, models.DO_NOTHING)
     currency = models.CharField(
         max_length=10, blank=True, null=True, choices=CurrencyChoices.choices

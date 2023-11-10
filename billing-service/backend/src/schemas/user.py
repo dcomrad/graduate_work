@@ -7,3 +7,4 @@ class User(BaseModel):
     id: UUID  # noqa:VNE003
     email: str
     full_name: str
+    content_permission_rank: int

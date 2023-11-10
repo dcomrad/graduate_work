@@ -29,7 +29,7 @@ class DjangoSecuritySettings(BaseSettings):
 
 class AuthSettings(BaseSettings):
     host: str = Field(validation_alias='AUTH_API_HOST', default='51.250.6.208')
-    port: int = Field(validation_alias='AUTH_API_HOST', default=5002)
+    port: int = Field(validation_alias='AUTH_API_PORT', default=5002)
     token: str = Field(validation_alias='JWT_TOKEN', default='default-token')
 
 

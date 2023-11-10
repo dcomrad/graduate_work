@@ -8,9 +8,12 @@ class RecurringIntervalChoices(TextChoices):
 
 class CurrencyChoices(TextChoices):
     RUB = 'RUB'
+    USD = 'USD'
 
 
 class TransactionStatusChoices(TextChoices):
+    DRAFT = 'draft'
+    PROCESSING = 'processing'
     SUCCEEDED = 'succeeded'
     FAILED = 'failed'
-    PROCESSING = 'processing'
+    REFUNDED = 'refunded'

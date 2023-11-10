@@ -176,3 +176,89 @@ async def stripe_webhook(
             ))
 
     return Response(status_code=http.HTTPStatus.OK)
+
+
+####################################################
+# DEBUG
+####################################################
+import uuid
+
+import fastapi
+import jinja2
+from fastapi import Depends
+from fastapi.responses import HTMLResponse
+from src.config.config import BASE_DIR
+from src.db.crud import subscription_crud
+from src.db.postgres import AsyncSession, get_async_session
+from src.managers import (get_payment_method_manager, get_subscription_manager,
+                          get_transaction_manager)
+from src.providers import ProviderManager, get_provider_manager
+from src.services.external import get_auth_api
+
+TEMPLATE = BASE_DIR / 'logs' / 'customer.html'
+USER_ID = '3f50243f-018f-42ec-b06e-282281ec288e'
+USER_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZjUwMjQzZi0wMThmLTQyZWMtYjA2ZS0yODIyODFlYzI4OGUiLCJpYXQiOjE2OTk1NzkxMzAsIm5iZiI6MTY5OTU3OTEzMCwianRpIjoiZTM4YzRiMzUtNjU1ZS00ODI4LTlhMDUtYzYyNjE3ZTYwYjMzIiwiZXhwIjoxNjk5NjY1NTMwLCJ0eXBlIjoiYWNjZXNzIiwiZnJlc2giOmZhbHNlLCJwZXJtaXNzaW9ucyI6W10sImNvbnRlbnRfcGVybWlzc2lvbl9yYW5rIjowfQ.KNcKSSTXapCX7Un8RhvktuQBSMuHVApd_Du4ur0VXFI5Zb2k9AvuLNkhdnoYJlVpd41STP7a79eT-aoOeNOVfOIIJ4DXNAuLWNn-M6hib7H9ZIIHXVtrX9ySM42RsskBokqKrYtFYlBil9SUwXXeeYa25XE9DSN_Jab9EKyyESA'
+
+
+@router.get('/debug')
+async def debug_dashboard(
+        add_card: bool | None = fastapi.Query(None),
+        delete: bool | uuid.UUID = fastapi.Query(None),
+        set_default: bool | uuid.UUID = fastapi.Query(None),
+        unsubscribe: bool | None = fastapi.Query(None),
+        renew: bool | None = fastapi.Query(None),
+        session: AsyncSession = Depends(get_async_session),
+        provider_manager: ProviderManager = Depends(get_provider_manager),
+):
+    auth_api = get_auth_api()
+    payment_method_manager = await get_payment_method_manager(user_id=USER_ID)
+    subscription_manager = await get_subscription_manager(user_id=USER_ID)
+    transaction_manager = await get_transaction_manager(user_id=USER_ID)
+
+    if set_default:
+        await payment_method_manager.set_default(session, set_default)
+    elif delete:
+        payment_method = await payment_method_manager.get(session, delete)
+
+        if payment_method:
+            subscription = await subscription_manager.get_active(session)
+            payment_methods = await payment_method_manager.get_all(session)
+
+            if subscription and subscription.renew_to and len(payment_methods) == 1:
+                pass
+            else:
+                await provider_manager.remove_payment_method(
+                    str(payment_method.user_id),
+                    str(payment_method.provider_payment_method_id)
+                )
+
+    ########################################################
+    user = await auth_api.get_user(uuid.UUID(USER_ID))
+    subscriptions = await subscription_crud.get_all(session)
+    user_subscription = await subscription_manager.get_active(session)
+    user_payment_methods = await payment_method_manager.get_all(session)
+    transactions = await transaction_manager.get_transactions(session)
+
+    template = jinja2.Template(open(TEMPLATE).read())
+
+    add_card_form = None
+    if add_card:
+        add_card_form = await provider_manager.add_payment_method(
+            USER_ID,
+            'Добавить карту',
+            'http://127.0.0.1:8000/api/v1/webhooks/stripe/debug'
+        )
+
+    if unsubscribe:
+        await subscription_manager.unsubscribe(session)
+    elif renew:
+        await subscription_manager.subscribe(session, user_subscription.subscription.id)
+
+    return HTMLResponse(template.render(
+        user=user,
+        add_card_form=add_card_form,
+        subscriptions=subscriptions,
+        user_subscription=user_subscription,
+        user_payment_methods=user_payment_methods,
+        transactions=transactions
+    ))

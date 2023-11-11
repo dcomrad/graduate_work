@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="vue-2.3.4.js"></script>
+    <script src="fetch-2.0.3.min.js"></script>
+    <title>Управление подписками</title>
+    <style>
+        /* Пример стилей, вы можете настроить их по своему усмотрению */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .product {
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        .product h2 {
+            margin-top: 0;
+        }
+        .payment-button {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <h1>Управление подписками</h1>
+        <h2>Действующая подписка</h2>
+        <div class="product" v-if="currentsub">
+            <h2 style ="text-align: center">{{currentsub.name}}</h2>
+            <p style ="text-align: center">Действует до: {{currentsub.expired_at}}</p>
+            <div class="payment-button">
+                <button @click="DeleteSubscription(currentsub.subscription_id)">Отменить</button>
+            </div>
+        </div>
+        <div class="product" v-else>
+            <p style ="text-align: center">У Вас нет действующих подписок</p>
+        </div>
+        <h2>Купить подписку</h2>
+        <div class="product" v-for="sub in subscriptions" :key="sub.id">
+            <h2 style ="text-align: center">{{sub.name}}</h2>
+            <p style ="text-align: center">{{sub.description}}</p>
+            <p style ="text-align: center">Цена: {{sub.price}} RUB</p>
+            <div class="payment-button">
+                <button @click="BuySubscription(sub.id, paymentmethods)">Оплатить</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        Vue.config.productionTip = false;
+        var app = new Vue({
+            el: '#app',
+            data: {
+                subscriptions: [],
+                paymentmethods: [],
+                currentsub: '',
+            },
+            methods: {
+                async GetCurrentSubscription() {
+                    const URL = `http://${window.location.hostname}/api/v1/customer/subscription`;
+                    const response = await fetch(URL, {
+                        method: 'get',
+                    });
+                    this.currentsub = await response.json();
+                    console.log('currentsub',this.currentsub);
+
+                },
+                async BuySubscription(subscriptionId, pymentmethodsId) {
+                    var methodId = pymentmethodsId[0]['id']
+                    var url = new URL(`http://${window.location.hostname}/api/v1/customer/subscription/${subscriptionId}`);
+                    url.search = new URLSearchParams({payment_method_id: methodId}).toString();
+                    await fetch(url, {
+                        method: 'post'
+                    });
+                },
+                async GetSubscription() {
+                    const URL = `http://${window.location.hostname}/api/v1/subscriptions`;
+                    const response = await fetch(URL, {
+                        method: 'get',
+                    });
+                    this.subscriptions = await response.json();
+                    this.length_subscriptions = this.subscriptions.length
+                    console.log('GetSubscription', this.length_subscriptions);
+                },
+                async GetPymentMethods() {
+                    const URL = `http://${window.location.hostname}/api/v1/customer/payment_methods`;
+                    const response = await fetch(URL, {
+                        method: 'get',
+                    });
+                    this.paymentmethods = await response.json();
+                    console.log('paymentmethods', this.paymentmethods)
+                },
+                async DeleteSubscription(){
+                    const URL = `http://${window.location.hostname}/api/v1/customer/subscription`;
+                    await fetch(URL,{
+                        method: 'delete'
+                    })
+                },
+            },
+            mounted() {
+                this.GetCurrentSubscription();
+                this.GetSubscription();
+                this.GetPymentMethods();
+            },
+        });
+    </script>
+</body>
+</html>

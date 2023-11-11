@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="vue-2.3.4.js"></script>
+    <script src="fetch-2.0.3.min.js"></script>
+    <title>Управление подписками</title>
+    <style>
+        /* Пример стилей, вы можете настроить их по своему усмотрению */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .Table {
+            position: relative;
+            min-width: 1000px;
+            overflow-y: auto;
+            height: 500px;
+        }
+        .Table thead th {
+            position: sticky;
+            top: 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th,
+        td {
+            padding: 8px 15px;
+            border: 2px solid #529432;
+        }
+        th {
+            background: #ABDD93;
+        }
+    </style>
+</head>
+<body>
+    <h1>Транзакции</h1>
+    <div class="Table">
+        <table class="table" border="1" id="transactions">
+            <thead>
+                <tr>
+                <th><b>ID</b></th>
+                <th><b>Дата</b></th>
+                <th><b>Товар</b></th>
+                <th><b>Сумма</b></th>
+                <th><b>Валюта</b></th>
+                <th><b>Статус</b></th>
+                </tr>
+            </thead>
+            <tbody id="tableContent">
+                <tr v-for="transition in transactions">
+                <td>{{transition.id}}</td>
+                <td>{{transition.created_at}}</td>
+                <td>Подписка {{transition.subscription.name}}</td>
+                <td>{{transition.amount}}</td>
+                <td>{{transition.currency}}</td>
+                <td>{{transition.status}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        Vue.config.productionTip = false;
+        var app = new Vue({
+            el: '#transactions',
+            data: {
+                transactions: []
+            },
+            methods: {
+                async GetTranszctions() {
+                    const URL = `http://${window.location.hostname}/api/v1/customer/transactions`;
+                    const response = await fetch(URL, {
+                        method: 'get',
+                    });
+                    this.transactions = await response.json();
+                    console.log('ggg', this.transactions);
+                }
+            },
+            mounted() {
+                this.GetTranszctions();
+            },
+        });
+    </script>
+</body>
+</html>

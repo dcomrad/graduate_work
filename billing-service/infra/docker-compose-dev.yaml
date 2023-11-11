@@ -18,19 +18,20 @@ services:
       - env/postgres
 
   nginx:
-   image: nginx:${NGINX_VERSION}
-   container_name: billing-nginx
-   hostname: ${NGINX_HOST}
-   restart: on-failure
-   ports:
-     - ${SERVER_PORT}:${SERVER_PORT}
-   expose:
-     - ${SERVER_PORT}
-   volumes:
-     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-     - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-   env_file:
-     - env/general
+    image: nginx:${NGINX_VERSION}
+    container_name: billing-nginx
+    hostname: ${NGINX_HOST}
+    restart: on-failure
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    expose:
+      - ${SERVER_PORT}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ../frontend:/usr/nginx/frontend
+    env_file:
+      - env/general
 
   backend:
     build: ../backend

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        /* Пример стилей, вы можете настроить их по своему усмотрению */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .product {
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease; /* анимация при изменении фона */
+        }
+        .product:hover {
+            background-color: rgb(84, 83, 83);
+        }
+    </style>
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+</head>
+<body>
+    <h1 style ="text-align: center">Личный кабинет</h1>
+
+    <div class="container">
+        <div class="product" id="subscription">
+            <h>Управление подписками</h>
+        </div>
+        <div class="product" id="transaction">
+            <h>Транзакции</h>
+        </div>
+        <div class="product" id="payment">
+            <h>Платежный метод</h>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Здесь будет отображаться содержимое выбранного блока -->
+    </div>
+
+    <script>
+        document.getElementById("subscription").addEventListener("click", function() {
+            // Здесь напишите код для перехода на нужную страницу
+            window.location.href = `http://${window.location.hostname}/users/subscription`;
+            });
+        document.getElementById("transaction").addEventListener("click", function() {
+            // Здесь напишите код для перехода на нужную страницу
+            window.location.href = `http://${window.location.hostname}/users/transaction`;
+            });
+        document.getElementById("payment").addEventListener("click", function() {
+            // Здесь напишите код для перехода на нужную страницу
+            window.location.href = `http://${window.location.hostname}/users/payment-method`;
+            });
+    </script>
+</body>
+</html>

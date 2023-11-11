@@ -76,7 +76,8 @@ class Subscription(UUIDMixin):
         db_table = 'subscription'
 
     def actual_price(self):
-        return self.price / 100
+        if self.price:
+            return self.price / 100
 
     def __str__(self):
         return self.name
@@ -118,4 +119,5 @@ class Transaction(UUIDMixin):
         db_table = 'transaction'
 
     def actual_amount(self):
-        return self.amount / 100
+        if self.amount:
+            return self.amount / 100

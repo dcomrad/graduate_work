@@ -67,6 +67,18 @@ services:
       - postgres
       - backend
 
+  worker:
+    build: ../worker
+    container_name: billing-worker
+    restart: on-failure
+    depends_on:
+      - postgres
+    entrypoint: /app/docker-entrypoint.sh
+    env_file:
+      - env/general
+      - env/worker
+      - env/postgres
+      -
 networks:
   default:
     name: billing-network

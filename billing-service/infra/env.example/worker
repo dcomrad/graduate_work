@@ -1,0 +1,3 @@
+WORKER_JWT_TOKEN=<worker-jwt-token>
+REFRESH_PERIOD_S=60
+DEBUG=False

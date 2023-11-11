@@ -35,7 +35,7 @@ async def test_get_payment_methods(
     make_http_request,
     get_customers_url,
 ):
-    url = f'{get_customers_url}/payment_methods'
+    url = f'{get_customers_url}/payment_methods/'
 
     response: Response = await make_http_request(
         'GET', url, token=tests_settings.user_token
@@ -49,7 +49,7 @@ async def test_default_payment_method(
     make_http_request,
     get_customers_url,
 ):
-    payment_methods_url = f'{get_customers_url}/payment_methods'
+    payment_methods_url = f'{get_customers_url}/payment_methods/'
     payment_methods_response = await make_http_request(
         'GET', payment_methods_url, token=tests_settings.user_token
     )
@@ -84,7 +84,7 @@ async def test_get_subscription(
     make_http_request,
     get_customers_url,
 ):
-    url = f'{get_customers_url}/subscription'
+    url = f'{get_customers_url}/subscription/'
 
     response: Response = await make_http_request(
         'GET', url, token=tests_settings.user_token
@@ -101,7 +101,7 @@ async def test_post_subscription(
     get_customers_url,
     get_subscriptions_url,
 ):
-    payment_methods_url = f'{get_customers_url}/payment_methods'
+    payment_methods_url = f'{get_customers_url}/payment_methods/'
     payment_methods_response = await make_http_request(
         'GET', payment_methods_url, token=tests_settings.user_token
     )
@@ -111,7 +111,7 @@ async def test_post_subscription(
     payment_method_id = payment_method.get('id')
 
     all_subscriptions_response = await make_http_request(
-        'GET', get_subscriptions_url
+        'GET', f'{get_subscriptions_url}/'
     )
     if not all_subscriptions_response.body:
         pytest.skip('No available subscriptions')
@@ -153,7 +153,7 @@ async def test_get_transactions(
     make_http_request,
     get_customers_url,
 ):
-    url = f'{get_customers_url}/transactions'
+    url = f'{get_customers_url}/transactions/'
 
     response: Response = await make_http_request(
         'GET', url, token=tests_settings.user_token

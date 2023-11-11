@@ -12,7 +12,9 @@ async def test_get_all_subscriptions(
     make_http_request,
     get_subscriptions_url,
 ):
-    response: Response = await make_http_request('GET', get_subscriptions_url)
+    response: Response = await make_http_request(
+        'GET', f'{get_subscriptions_url}/'
+    )
 
     assert isinstance(response.body, list)
     assert response.status == HTTPStatus.OK
@@ -23,7 +25,7 @@ async def test_get_subscription(
     get_subscriptions_url,
 ):
     all_subscriptions_response = await make_http_request(
-        'GET', get_subscriptions_url
+        'GET', f'{get_subscriptions_url}/'
     )
     if not all_subscriptions_response.body:
         pytest.skip('No available subscriptions')
@@ -31,9 +33,7 @@ async def test_get_subscription(
     subscription_id = subscription.get('id')
     url = f'{get_subscriptions_url}/{subscription_id}'
 
-    response: Response = await make_http_request(
-        'GET', url, token=tests_settings
-    )
+    response: Response = await make_http_request('GET', url)
 
     assert isinstance(response.body, dict)
     assert response.body.get('id') == subscription_id

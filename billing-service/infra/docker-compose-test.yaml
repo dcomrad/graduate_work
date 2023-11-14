@@ -1,20 +1,9 @@
-version: "3.8"
-
-name: billing-service
+name: billing-test-service
 
 services:
-  postgres:
-    extends:
-      file: docker-compose-dev.yaml
-      service: postgres
-
-  backend:
-    extends:
-      file: docker-compose-dev.yaml
-      service: backend
-
   tests:
     build: ../tests
+    container_name: billing-test
     env_file:
       - env/general
       - env/tests
@@ -25,7 +14,7 @@ services:
 
 networks:
   default:
-    name: billing-network
+    name: billing-test-network
 
 volumes:
-  postgresql_data:
+  postgresql_test_data:

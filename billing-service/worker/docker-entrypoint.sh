@@ -3,7 +3,9 @@
 set -e
 
 while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
-  echo "Waiting for Postgres to start..."
+  echo "Waiting for postgres to start..."
   sleep 1
+done
+echo "Postgres started"
 
 python -m src.main

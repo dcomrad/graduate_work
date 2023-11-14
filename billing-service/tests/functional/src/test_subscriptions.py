@@ -4,7 +4,6 @@ from http import HTTPStatus
 
 import pytest
 
-from functional.core.settings import tests_settings
 from functional.models.response import Response
 
 

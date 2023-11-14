@@ -1,20 +1,22 @@
 FROM python:3.10
 
-ENV WORKDIR /backend
+ENV WORKDIR /app
 ENV USER billing
 ENV I_AM_IN_A_DOCKER_CONTAINER YES
 
 WORKDIR $WORKDIR
 
+RUN apt-get update && \
+    apt-get install -y netcat-traditional
+
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir poetry==1.4.2 && \
+    poetry config virtualenvs.create false
+
 COPY poetry.lock poetry.lock
 COPY pyproject.toml pyproject.toml
 
-RUN apt-get update && \
-    pip install --upgrade pip &&\
-    apt-get install -y netcat-traditional && \
-    pip install --no-cache-dir poetry==1.4.2 && \
-    poetry config virtualenvs.create false && \
-    poetry install --without dev
+RUN poetry install --without dev
 
 COPY . .
 

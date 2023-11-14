@@ -10,8 +10,8 @@ from src.config.config import settings
 from src.core.logger import logger_factory
 from src.providers.base import HTMLForm, ProviderManager
 from stripe.api_resources import Customer
-from stripe.error import InvalidRequestError
 from stripe.error import SignatureVerificationError  # noqa
+from stripe.error import InvalidRequestError
 
 
 class StripeProviderManager(ProviderManager):

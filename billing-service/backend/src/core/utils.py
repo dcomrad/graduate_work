@@ -36,8 +36,8 @@ async def make_http_request(
     headers['Content-Type'] = 'application/json'
     async with aiohttp.ClientSession() as aiohttp_client:
         try:
-            async with getattr(aiohttp_client, method.lower())(
-                    url, params=params, headers=headers, json=data
+            async with aiohttp_client.request(
+                method.lower(), url, params=params, headers=headers, json=data
             ) as response:
                 body = await response.text()
                 return Response(

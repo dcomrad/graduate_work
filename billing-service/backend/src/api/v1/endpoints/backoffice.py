@@ -1,16 +1,17 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path
 from src.api.v1 import openapi
 from src.core.exceptions import NotFoundException
 from src.core.logger import logger_factory
 from src.db.crud import transaction_crud, user_subscription_crud
 from src.db.postgres import AsyncSession, get_async_session
 from src.jwt import AuthJWT, login_required
+from src.managers import get_subscription_manager
 from src.models.models import TransactionStatus
 from src.providers import get_provider_manager
-from src.managers import get_subscription_manager
+from src.schemas.backoffice import Charge
 
 logger = logger_factory(__name__)
 
@@ -76,19 +77,17 @@ async def cancel_subscription(
 
 
 @router.post(
-    '/charge/{user_id}',
+    '/charge/',
     status_code=HTTPStatus.NO_CONTENT,
     **openapi.backoffice.refund.model_dump()
 )
 @login_required(['billing-manager'])
 async def charge(
-        user_id: UUID = Path(..., description='ID пользователя'),
-        subscription_id: UUID = Query(..., description='ID подписки'),
+        charge_list: list[Charge],
         authorize: AuthJWT = Depends(),
         session: AsyncSession = Depends(get_async_session),
 ):
-    logger.debug(f'Запрос на списание средств у пользователя {user_id} за '
-                 f'подписку {subscription_id}')
-
-    subscription_manager = await get_subscription_manager(user_id)
-    await subscription_manager.upgrade(session, subscription_id)
+    logger.debug(f'Запрос на списание средств: {charge_list}')
+    for _charge in charge_list:
+        subscription_manager = await get_subscription_manager(_charge.user_id)
+        await subscription_manager.upgrade(session, _charge.subscription_id)

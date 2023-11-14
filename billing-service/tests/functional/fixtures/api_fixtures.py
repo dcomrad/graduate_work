@@ -36,12 +36,14 @@ async def make_http_request(aiohttp_client: aiohttp.ClientSession):
             headers['Authorization'] = f'Bearer {token}'
 
         headers['Content-Type'] = 'application/json'
-        caller = getattr(aiohttp_client, method.lower())
-
         semaphore = asyncio.Semaphore()
         async with semaphore:
-            async with caller(
-                url, params=params, headers=headers, json=data
+            async with aiohttp.request(
+                method=method.lower(),
+                url=url,
+                params=params,
+                headers=headers,
+                json=data,
             ) as response:
                 try:
                     body = await response.json()

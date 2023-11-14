@@ -6,11 +6,7 @@ from requests import Session
 from config.base_settings import auth_settings, billing_api_settings
 from utils.logger import logger
 from utils.models import Response
-from utils.urls import (
-    get_cancel_sub_api_url,
-    get_refund_api_url,
-    get_users_api_url,
-)
+from utils.urls import CANCEL_SUB_API_URL, REFUND_API_URL, USERS_AUTH_API_URL
 
 
 class ApiHelper:
@@ -22,7 +18,7 @@ class ApiHelper:
     def get_user_by_id(
         self,
         user_id: uuid.UUID,
-        users_api_url: str = get_users_api_url(),
+        users_api_url: str = USERS_AUTH_API_URL,
         token: str = auth_settings.token,
     ):
         self.logger.info('Requesting user %s', user_id)
@@ -32,7 +28,7 @@ class ApiHelper:
     def refund_transaction(
         self,
         transaction_id: uuid.UUID,
-        refund_api_url: str = get_refund_api_url(),
+        refund_api_url: str = REFUND_API_URL,
         token: str = billing_api_settings.token,
     ):
         self.logger.info('Refunding transaction %s', transaction_id)
@@ -42,7 +38,7 @@ class ApiHelper:
     def cancel_user_subscription(
         self,
         user_subscription_id: uuid.UUID,
-        cancel_sub_api_url: str = get_cancel_sub_api_url(),
+        cancel_sub_api_url: str = CANCEL_SUB_API_URL,
         token: str = billing_api_settings.token,
     ):
         self.logger.info(
@@ -76,10 +72,10 @@ class ApiHelper:
                 headers['Authorization'] = f'Bearer {token}'
 
             headers['Content-Type'] = 'application/json'
-            caller = getattr(session, method.lower())
             try:
-                with caller(
-                    url,
+                with session.request(
+                    method=method.lower(),
+                    url=url,
                     data=data,
                     json=json,
                     params=params,
